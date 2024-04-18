@@ -20,7 +20,7 @@ runs:
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
-        cache-dependency-path: (${{ inputs.PROJECT_PATH }} == '') ? 'package-lock.json' : "${{ inputs.PROJECT_PATH }}/package-lock.json"
+        # cache-dependency-path: (${{ inputs.PROJECT_PATH }} == '') ? 'package-lock.json' : "${{ inputs.PROJECT_PATH }}/package-lock.json"
 
     - name: Install assets packages
       working-directory: (${{ inputs.PROJECT_PATH }} == '') ? '.' : ${{ inputs.PROJECT_PATH }}
