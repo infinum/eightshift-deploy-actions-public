@@ -15,12 +15,22 @@ inputs:
   OUTPUT_NAME:
     description: 'Name of the output zip file'
     default: 'release'
+  PHP_VERSION:
+    type: string
+    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    required: true
 
 runs:
   using: composite
   steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
 
     - name: Bundle theme/plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
