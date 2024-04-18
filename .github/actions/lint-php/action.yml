@@ -1,0 +1,33 @@
+name: PHP check coding standards
+
+inputs:
+  PHP_VERSION:
+    type: string
+    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    required: true
+  PROJECT_PATH:
+    type: string
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+
+    - name: Install dependencies
+      uses: "ramsey/composer-install@v3"
+      with:
+        composer-options: "--no-dev"
+        working-directory: (${{ inputs.PROJECT_PATH }} === '') ? '.' : ${{ inputs.PROJECT_PATH }}
+
+    - name: Run PHP check coding standards
+      shell: bash
+      working-directory: (${{ inputs.PROJECT_PATH }} === '') ? '.' : ${{ inputs.PROJECT_PATH }}
+      run: composer test:standards
