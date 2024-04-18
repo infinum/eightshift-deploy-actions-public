@@ -44,6 +44,7 @@ runs:
     - name: Zip Folder
       shell: bash
       run: |
+        mkdir ${{ inputs.REPO_NAME }}
         cp -aR * ${{ inputs.REPO_NAME }}
         zip -rq ${{ inputs.OUTPUT_NAME }}.zip ./${{ inputs.REPO_NAME }}
 

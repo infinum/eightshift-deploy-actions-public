@@ -44,7 +44,6 @@ runs:
     - name: Zip Folder
       shell: bash
       run: |
-        cp -aR * ${{ inputs.REPO_NAME }}
         zip -rq ${{ inputs.OUTPUT_NAME }}.zip ./${{ inputs.REPO_NAME }}
 
     - name: Upload zip to release
