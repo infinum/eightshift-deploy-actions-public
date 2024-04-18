@@ -1,4 +1,4 @@
-name: Cleanup project theme/plugin
+name: Cleanup Eightshift Forms
 
 inputs:
   PROJECT_PATH:
@@ -9,11 +9,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Post install cleanup - theme/plugin
+    - name: Post install cleanup - Eightshift Forms
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
-        rm -rf tests/
+        rm -rf docs/
         rm -rf tests/
         rm -rf node_modules/
         rm -rf assets/
@@ -24,10 +24,8 @@ runs:
         rm -f .eslintrc
         rm -f .gitignore
         rm -f .stylelintrc
-        rm -f composer.json
         rm -f composer.lock
         rm -f package-lock.json
-        rm -f package.json
         rm -f phpcs.xml.dist
         rm -f phpstan.neon.dist
         rm -f webpack.config.js
@@ -35,6 +33,3 @@ runs:
         rm -f babel.config.js
         rm -f codeception.dist.yml
         rm -f .env.testing
-        rm -f patchwork.json
-        rm -f strauss.phar
-        rm -f phpunit.xml

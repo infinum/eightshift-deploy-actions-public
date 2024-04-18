@@ -38,6 +38,9 @@ runs:
         ROOT_PATH: $GITHUB_WORKSPACE
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
 
+    - name: Post install cleanup - root
+      uses: infinum/eightshift-deploy-actions/.github/actions/cleanup-project-root@main
+
     - name: Zip Folder
       shell: bash
       run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip .
