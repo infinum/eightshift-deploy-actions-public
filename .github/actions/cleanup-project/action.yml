@@ -1,0 +1,34 @@
+name: Cleanup project theme/plugin
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Post install cleanup - theme/plugin
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: |
+        rm -rf tests/
+        rm -rf node_modules/
+        rm -rf assets/
+        rm -rf src/Blocks/assets/
+        rm -rf .husky
+        rm -f .browserslistrc
+        rm -f .eslintignore
+        rm -f .eslintrc
+        rm -f .gitignore
+        rm -f .stylelintrc
+        rm -f composer.lock
+        rm -f package-lock.json
+        rm -f phpcs.xml.dist
+        rm -f phpstan.neon.dist
+        rm -f webpack.config.js
+        rm -f postcss.config.js
+        rm -f babel.config.js
+        rm -f codeception.dist.yml
+        rm -f .env.testing

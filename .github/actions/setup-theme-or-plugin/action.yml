@@ -1,0 +1,43 @@
+name: Install theme/plugin
+
+inputs:
+  NODE_VERSION:
+    type: string
+    description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
+    default: 'latest'
+  ROOT_PATH:
+    type: string
+    description: 'Path to the root of the repository. Usually $GITHUB_WORKSPACE'
+    required: true
+  PROJECT_PATH:
+    type: string
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.NODE_VERSION }}
+        cache: npm
+        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
+
+    - name: Install dependencies
+      uses: "ramsey/composer-install@v3"
+      with:
+        composer-options: "--no-dev"
+        working-directory: ${{ inputs.PROJECT_PATH }}
+
+    - name: Install assets packages
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: |
+        npm ci --no-progress --no-dev --no-audit
+        npm run build
+
+    - name: Post install cleanup - theme
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project@main
+      with:
+        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
