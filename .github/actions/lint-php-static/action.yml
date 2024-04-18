@@ -8,6 +8,7 @@ inputs:
   PROJECT_PATH:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    required: true
 
 runs:
   using: composite
@@ -25,9 +26,9 @@ runs:
       uses: "ramsey/composer-install@v3"
       with:
         composer-options: "--no-dev"
-        working-directory: (${{ inputs.PROJECT_PATH }} === '') ? '.' : ${{ inputs.PROJECT_PATH }}
+        working-directory: ${{ inputs.PROJECT_PATH }}
 
     - name: Run PHP Static code analysis
       shell: bash
-      working-directory: (${{ inputs.PROJECT_PATH }} === '') ? '.' : ${{ inputs.PROJECT_PATH }}
+      working-directory: ${{ inputs.PROJECT_PATH }}
       run: composer test:types
