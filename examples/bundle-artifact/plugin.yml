@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   bundle:
-    name: Add zip to release
+    name: Add zip to artifact
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
