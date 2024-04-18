@@ -26,35 +26,28 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+
+    - name: Bundle theme/plugin
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
+      with:
+        ROOT_PATH: $GITHUB_WORKSPACE
+        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+
+    - name: Post install cleanup - root
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
+
     - name: Zip Folder
       shell: bash
       run: |
-        ls -la
-        cd ./
-        ls -la
+        cp -aR * ${{ inputs.REPO_NAME }}
+        zip -rq ${{ inputs.OUTPUT_NAME }}.zip ./${{ inputs.REPO_NAME }}
 
-    # - name: PHP setup
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: ${{ inputs.PHP_VERSION }}
-    #     coverage: none
-
-    # - name: Bundle theme/plugin
-    #   uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
-    #   with:
-    #     ROOT_PATH: $GITHUB_WORKSPACE
-    #     PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
-
-    # - name: Post install cleanup - root
-    #   uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
-
-    # - name: Zip Folder
-    #   shell: bash
-    #   run: |
-    #     cp -aR . ${{ inputs.REPO_NAME }}
-    #     zip -rq ${{ inputs.OUTPUT_NAME }}.zip ./${{ inputs.REPO_NAME }}
-
-    # - uses : actions/upload-artifact@v2
-    #   with:
-    #     name: ${{ inputs.OUTPUT_NAME }}
-    #     path: ${{ inputs.OUTPUT_NAME }}.zip
+    - uses : actions/upload-artifact@v2
+      with:
+        name: ${{ inputs.OUTPUT_NAME }}
+        path: ${{ inputs.OUTPUT_NAME }}.zip
