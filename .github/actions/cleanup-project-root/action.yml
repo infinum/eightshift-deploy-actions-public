@@ -19,5 +19,4 @@ runs:
         rm -f setup.json
         rm -f wp-cli.phar
         rm -f wp-config.php.tmpl
-        rm -f patchwork.json
 
