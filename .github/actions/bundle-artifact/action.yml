@@ -43,7 +43,7 @@ runs:
 
     - name: Zip Folder
       shell: bash
-      run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip .
+      run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip ${{ inputs.OUTPUT_NAME }}/
 
     - uses : actions/upload-artifact@v2
       with:
