@@ -9,12 +9,22 @@ inputs:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
+  PHP_VERSION:
+    type: string
+    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    required: true
 
 runs:
   using: composite
   steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
 
     - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
       uses: actions/setup-node@v4
