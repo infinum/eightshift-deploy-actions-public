@@ -14,7 +14,6 @@ runs:
       shell: bash
       run: |
         rm -rf tests/
-        rm -rf tests/
         rm -rf node_modules/
         rm -rf assets/
         rm -rf src/Blocks/assets/
@@ -38,3 +37,6 @@ runs:
         rm -f patchwork.json
         rm -f strauss.phar
         rm -f phpunit.xml
+        rm -f CHANGELOG.md
+        rm -f CODE_OF_CONDUCT.md
+        rm -f README.md
