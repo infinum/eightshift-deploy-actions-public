@@ -39,7 +39,8 @@ runs:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
 
     - name: Zip Folder
-      run: zip -r ${{ inputs.OUTPUT_NAME }}.zip ${{ inputs.REPO_NAME }}
+      shell: bash
+      run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip ${{ inputs.REPO_NAME }}
 
     - uses : actions/upload-artifact@v2
       with:
