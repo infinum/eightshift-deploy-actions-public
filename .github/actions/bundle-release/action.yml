@@ -40,7 +40,7 @@ runs:
 
     - name: Zip Folder
       shell: bash
-      run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip ${{ inputs.REPO_NAME }}
+      run: zip -rq ${{ inputs.OUTPUT_NAME }}.zip .
 
     - name: Upload zip to release
       uses: svenstaro/upload-release-action@v2
