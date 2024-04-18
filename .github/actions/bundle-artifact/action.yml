@@ -26,27 +26,27 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: PHP setup
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ inputs.PHP_VERSION }}
-        coverage: none
+    # - name: PHP setup
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: ${{ inputs.PHP_VERSION }}
+    #     coverage: none
 
-    - name: Bundle theme/plugin
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
-      with:
-        ROOT_PATH: $GITHUB_WORKSPACE
-        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+    # - name: Bundle theme/plugin
+    #   uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
+    #   with:
+    #     ROOT_PATH: $GITHUB_WORKSPACE
+    #     PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
 
-    - name: Post install cleanup - root
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
+    # - name: Post install cleanup - root
+    #   uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
 
     - name: Zip Folder
       shell: bash
       run: |
         mkdir ${{ inputs.REPO_NAME }}
-        cp -aR * ${{ inputs.REPO_NAME }}
-        zip -rq ${{ inputs.OUTPUT_NAME }}.zip ./${{ inputs.REPO_NAME }}
+        rsync -r --exclude '${{ inputs.REPO_NAME }}' * ${{ inputs.REPO_NAME }}
+        zip -rq ${{ inputs.OUTPUT_NAME }}.zip ${{ inputs.REPO_NAME }}
 
     - uses : actions/upload-artifact@v2
       with:
