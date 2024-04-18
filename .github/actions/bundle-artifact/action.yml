@@ -39,7 +39,7 @@ runs:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
 
     - name: Post install cleanup - root
-      uses: infinum/eightshift-deploy-actions/.github/actions/cleanup-project-root@main
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
 
     - name: Zip Folder
       shell: bash
