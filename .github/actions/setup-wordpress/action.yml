@@ -111,14 +111,14 @@ runs:
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-paid-plugins@main
       if: steps.variablesSetup.outputs.HAS_PLUGINS_PAID == 'true'
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: $GITHUB_WORKSPACE/setup.json
 
     - name: Install Eightshift Forms plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
       if: steps.variablesSetup.outputs.HAS_PLUGINS_EIGHTSHIFT_FORMS == 'true'
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: $GITHUB_WORKSPACE/setup.json
         REPO_NAME: eightshift-forms
 
@@ -126,7 +126,7 @@ runs:
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
       if: steps.variablesSetup.outputs.HAS_PLUGINS_EIGHTSHIFT_SSO == 'true'
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: $GITHUB_WORKSPACE/setup.json
         REPO_NAME: eightshift-sso
 
