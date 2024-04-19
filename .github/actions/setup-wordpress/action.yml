@@ -1,0 +1,139 @@
+name: Install WordPress with core and paid plugins
+
+inputs:
+  PHP_VERSION:
+    type: string
+    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    required: true
+  ENVIRONMENT:
+    type: string
+    description: 'Environment to deploy to and WP enviroment constant. Available options are staging, production, etc.'
+    default: 'staging'
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    required: true
+  WORDPRESS_GH_ACTIONS:
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
+  DB_NAME:
+    type: string
+    description: 'WordPress database name'
+    required: true
+  DB_USER:
+    type: string
+    description: 'WordPress database user'
+    required: true
+  DB_PASSWORD:
+    type: string
+    description: 'WordPress database password'
+    required: true
+  DB_HOST:
+    type: string
+    description: 'WordPress database host'
+    required: true
+  DB_PREFIX:
+    type: string
+    description: 'WordPress database prefix'
+    default: 'wp_'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout the project repo
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        submodules: true
+
+    - name: Setup variables
+      id: variablesSetup
+      shell: bash
+      run: |
+        echo "HAS_PLUGINS_EIGHTSHIFT_SSO=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-sso")')" >> "$GITHUB_OUTPUT"
+        echo "HAS_PLUGINS_EIGHTSHIFT_FORMS=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-forms")')" >> "$GITHUB_OUTPUT"
+        echo "HAS_PLUGINS_CORE=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("core")')" >> "$GITHUB_OUTPUT"
+        echo "HAS_PLUGINS_PAID=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("paid")')" >> "$GITHUB_OUTPUT"
+        echo "CORE_VERSION=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.core')" >> "$GITHUB_OUTPUT"
+
+    - name: Start MySQL
+      shell: bash
+      run: |
+        sudo /etc/init.d/mysql start
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+        tools: composer:v2, wp-cli
+
+    - name: Download WordPress core
+      shell: bash
+      run: |
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+        php wp-cli.phar core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
+
+    - name: WordPress setup wp-config.php
+      shell: bash
+      run: |
+        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check --extra-php="
+          if (!defined( 'WP_ENVIRONMENT_TYPE')) {
+            define('WP_ENVIRONMENT_TYPE', '${{ inputs.ENVIRONMENT }}');
+          }
+          require_once('wp-config-project.php');
+        "
+        php wp-cli.phar config delete WP_DEBUG
+
+    - name: WordPress setup database
+      shell: bash
+      run: |
+        php wp-cli.phar db create
+
+    - name: WordPress core install
+      shell: bash
+      run: |
+        php wp-cli.phar core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com
+
+    - name: Install core plugins
+      shell: bash
+      if: steps.variablesSetup.outputs.HAS_PLUGINS_CORE == 'true'
+      run: |
+        PLUGINS=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.plugins.core')
+        for key in $(echo $PLUGINS | jq -r 'keys[]'); do
+          value=$(echo $PLUGINS | jq -r --arg key "$key" '.[$key]')
+          echo "Installing $key core plugin: $value"
+          php wp-cli.phar plugin install "$key" --version="$value" --force
+        done
+
+    - name: Install paid plugins
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-paid-plugins@main
+      if: steps.variablesSetup.outputs.HAS_PLUGINS_PAID == 'true'
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+
+    - name: Install Eightshift Forms plugin
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
+      if: steps.variablesSetup.outputs.HAS_PLUGINS_EIGHTSHIFT_FORMS == 'true'
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+        REPO_NAME: eightshift-forms
+
+    - name: Install Eightshift SSO plugin
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
+      if: steps.variablesSetup.outputs.HAS_PLUGINS_EIGHTSHIFT_SSO == 'true'
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+        REPO_NAME: eightshift-sso
+
+    - name: Setup real database constants
+      shell: bash
+      run: |
+        php wp-cli.phar config set DB_NAME ${{ inputs.DB_NAME }}
+        php wp-cli.phar config set DB_USER ${{ inputs.DB_USER }}
+        php wp-cli.phar config set DB_PASSWORD ${{ inputs.DB_PASSWORD }}
+        php wp-cli.phar config set DB_HOST ${{ inputs.DB_HOST }}

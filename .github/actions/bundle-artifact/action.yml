@@ -9,9 +9,6 @@ inputs:
     type: string
     description: 'Name of the repository without organization name. Example: eightshift-forms'
     required: true
-  WORDPRESS_GH_ACTIONS:
-    description: 'GitHub PAT token for the WordPress repository deployment'
-    required: true
   OUTPUT_NAME:
     description: 'Name of the output zip file'
     default: 'release'

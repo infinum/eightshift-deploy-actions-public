@@ -1,0 +1,37 @@
+name: Get and install paid plugins
+
+inputs:
+  WORDPRESS_GH_ACTIONS:
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup variables
+      id: variablesSetup
+      shell: bash
+      run: |
+        echo "PLUGINS_ES_PRIVATE=eightshift-private-plugins" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout paid plugins
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        repository: 'infinum/${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}'
+        path: ${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}
+
+    - name: Install paid plugins
+      shell: bash
+      run: |
+        PLUGINS=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.plugins.paid')
+        for key in $(echo $PLUGINS | jq -r 'keys[]'); do
+          value=$(echo $PLUGINS | jq -r --arg key "$key" '.[$key]')
+          echo "Installing $key paid plugin: $value"
+          php wp-cli.phar plugin install ${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}/$key/$value.zip --force
+        done
+        rm -rf ${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}

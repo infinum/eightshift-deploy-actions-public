@@ -1,0 +1,38 @@
+name: Get and install custom eightshift plugin
+
+inputs:
+  WORDPRESS_GH_ACTIONS:
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    required: true
+  REPO_NAME:
+    type: string
+    description: 'Plugin repository name'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup variables
+      id: variablesSetup
+      shell: bash
+      run: |
+        echo "PLUGIN_VERSION=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.plugins."${{ inputs.REPO_NAME }}"')" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout ${{ inputs.REPO_NAME }} plugin
+      uses: robinraju/release-downloader@v1.9
+      with:
+        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        repository: 'infinum/${{ inputs.REPO_NAME }}'
+        tag: ${{ steps.variablesSetup.outputs.PLUGIN_VERSION }}
+        out-file-path: 'wp-content/plugins'
+        fileName: "release.zip"
+
+    - name: Install ${{ inputs.REPO_NAME }} plugin
+      shell: bash
+      run: |
+        unzip -q wp-content/plugins/release.zip -d wp-content/plugins/
+        rm -rf wp-content/plugins/release.zip
