@@ -78,13 +78,10 @@ runs:
     - name: WordPress setup wp-config.php
       shell: bash
       run: |
-        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check --extra-php="
-          if (!defined( 'WP_ENVIRONMENT_TYPE')) {
-            define('WP_ENVIRONMENT_TYPE', '${{ inputs.ENVIRONMENT }}');
-          }
-          require_once('wp-config-project.php');
-        "
+        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check
         php wp-cli.phar config delete WP_DEBUG
+        php wp-cli.phar config set WP_ENVIRONMENT_TYPE development
+        php wp-cli.phar config set "configProject" "require_once(ABSPATH . 'wp-config-project.php')" --raw --type="variable"
 
     - name: WordPress setup database
       shell: bash
