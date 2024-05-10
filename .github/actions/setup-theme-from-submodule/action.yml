@@ -25,13 +25,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Pull latest submodule
-      shell: bash
-      working-directory: ${{ inputs.ROOT_PATH }}
-      run: |
-        git submodule init
-        git submodule update --remote
-
     - name: Use the subdirectory theme
       shell: bash
       run: |
