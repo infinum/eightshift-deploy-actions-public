@@ -45,9 +45,6 @@ runs:
       with:
         token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         submodules: true
-      run: |
-        git submodule init
-        git submodule update --remote
 
     - name: Setup variables
       id: variablesSetup
