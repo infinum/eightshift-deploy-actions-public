@@ -30,4 +30,4 @@ runs:
     - name: Run PHP Static code analysis
       shell: bash
       working-directory: ${{ inputs.PROJECT_PATH }}
-      run: "@php ./vendor/bin/phpstan analyze"
+      run: "php ./vendor/bin/phpstan analyze"

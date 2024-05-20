@@ -30,4 +30,4 @@ runs:
     - name: Run PHP check coding standards
       shell: bash
       working-directory: ${{ inputs.PROJECT_PATH }}
-      run: "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs --runtime-set testVersion ${{ inputs.PHP_VERSION }}-"
+      run: "php ./vendor/squizlabs/php_codesniffer/bin/phpcs --runtime-set testVersion ${{ inputs.PHP_VERSION }}-"
