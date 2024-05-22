@@ -12,10 +12,6 @@ inputs:
     type: string
     description: 'Title to use before main Slack message.'
     defult: '${{ github.head_ref || github.ref_name }} deployment'
-  SLACK_TITLE:
-    type: string
-    description: 'Title to use before main Slack message.'
-    defult: ${{ github.head_ref || github.ref_name }} deployment'
   SLACK_ICON_EMOJI:
     type: string
     description: 'User/Bot icon shown with Slack message, in case you do not wish to add a URL for slack icon, you can set slack emoji in this env variable.'
