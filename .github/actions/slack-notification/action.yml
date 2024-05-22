@@ -7,19 +7,27 @@ inputs:
   MSG_MINIMAL:
     type: string
     description: 'If set to true, removes: Ref, Event, Actions URL and Commit from the message. You can optionally whitelist any of these 4 removed values by passing it comma separated to the variable instead of true. (ex: MSG_MINIMAL: event or MSG_MINIMAL: ref,actions url, etc.)'
-    defult: 'ref,actions url'
-  SLACK_TITLE:
-    type: string
-    description: 'Title to use before main Slack message.'
-    defult: '${{ github.head_ref || github.ref_name }} deployment'
+    default: 'ref,actions url'
   SLACK_ICON_EMOJI:
     type: string
     description: 'User/Bot icon shown with Slack message, in case you do not wish to add a URL for slack icon, you can set slack emoji in this env variable.'
-    defult: ':github:'
+    default: ':github:'
   SLACK_USERNAME:
     type: string
     description: 'Custom Slack Username sending the message. Does not need to be a "real" username.'
-    defult: 'GitHub Actions'
+    default: 'GitHub Actions'
+  SLACK_MESSAGE_ON_SUCCESS:
+    type: string
+    description: 'If set, will send the provided message instead of the default message when the passed status (through SLACK_COLOR) is success.'
+    default: 'Deployment successful!'
+  SLACK_MESSAGE_ON_FAILURE:
+    type: string
+    description: 'If set, will send the provided message instead of the default message when the passed status (through SLACK_COLOR) is failure.'
+    default: 'Deployment failed!'
+  SLACK_MESSAGE_ON_CANCEL:
+    type: string
+    description: 'If set, will send the provided message instead of the default message when the passed status (through SLACK_COLOR) is cancelled.'
+    default: 'Deployment cancelled!'
 
 runs:
   using: composite
@@ -29,8 +37,10 @@ runs:
         env:
           SLACK_WEBHOOK: ${{ inputs.SLACK_WEBHOOK }}
           MSG_MINIMAL: ${{ inputs.MSG_MINIMAL }}
-          SLACK_TITLE: ${{ inputs.SLACK_TITLE }}
+          SLACK_TITLE: ${{ github.head_ref || github.ref_name }} deployment
           SLACK_ICON_EMOJI: ${{ inputs.SLACK_ICON_EMOJI }}
           SLACK_USERNAME: ${{ inputs.SLACK_USERNAME }}
-          SLACK_MESSAGE: ${{ job.status == 'success' && 'Deploy complete.' || 'Deploy failed.' }}
+          SLACK_MESSAGE_ON_SUCCESS: ${{ inputs.SLACK_MESSAGE_ON_SUCCESS }}
+          SLACK_MESSAGE_ON_FAILURE: ${{ inputs.SLACK_MESSAGE_ON_FAILURE }}
+          SLACK_MESSAGE_ON_CANCEL: ${{ inputs.SLACK_MESSAGE_ON_CANCEL }}
           SLACK_COLOR: ${{ job.status }}
