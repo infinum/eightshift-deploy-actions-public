@@ -8,10 +8,6 @@ inputs:
     type: string
     description: 'If set to true, removes: Ref, Event, Actions URL and Commit from the message. You can optionally whitelist any of these 4 removed values by passing it comma separated to the variable instead of true. (ex: MSG_MINIMAL: event or MSG_MINIMAL: ref,actions url, etc.)'
     default: 'ref,actions url'
-  SLACK_TITLE:
-    type: string
-    description: 'Title to use before main Slack message.'
-    default: '${{ github.head_ref || github.ref_name }} deployment'
   SLACK_ICON_EMOJI:
     type: string
     description: 'User/Bot icon shown with Slack message, in case you do not wish to add a URL for slack icon, you can set slack emoji in this env variable.'
@@ -41,7 +37,7 @@ runs:
         env:
           SLACK_WEBHOOK: ${{ inputs.SLACK_WEBHOOK }}
           MSG_MINIMAL: ${{ inputs.MSG_MINIMAL }}
-          SLACK_TITLE: ${{ inputs.SLACK_TITLE }}
+          SLACK_TITLE: ${{ github.head_ref || github.ref_name }} deployment
           SLACK_ICON_EMOJI: ${{ inputs.SLACK_ICON_EMOJI }}
           SLACK_USERNAME: ${{ inputs.SLACK_USERNAME }}
           SLACK_MESSAGE_ON_SUCCESS: ${{ inputs.SLACK_MESSAGE_ON_SUCCESS }}
