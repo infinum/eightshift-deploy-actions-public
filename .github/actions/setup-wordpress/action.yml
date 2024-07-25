@@ -36,6 +36,33 @@ inputs:
     type: string
     description: 'WordPress database prefix'
     default: 'wp_'
+  AUTH_KEY:
+    type: string
+    description: 'WordPress salt key'
+  SECURE_AUTH_KEY:
+    type: string
+    description: 'WordPress salt key'
+  LOGGED_IN_KEY:
+    type: string
+    description: 'WordPress salt key'
+  NONCE_KEY:
+    type: string
+    description: 'WordPress salt key'
+  AUTH_SALT:
+    type: string
+    description: 'WordPress salt key'
+  SECURE_AUTH_SALT:
+    type: string
+    description: 'WordPress salt key'
+  LOGGED_IN_SALT:
+    type: string
+    description: 'WordPress salt key'
+  NONCE_SALT:
+    type: string
+    description: 'WordPress salt key'
+  WP_CACHE_KEY_SALT:
+    type: string
+    description: 'WordPress salt key'
 
 runs:
   using: composite
@@ -80,14 +107,15 @@ runs:
       run: |
         php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check
         php wp-cli.phar config delete WP_DEBUG
-        php wp-cli.phar config delete AUTH_KEY
-        php wp-cli.phar config delete SECURE_AUTH_KEY
-        php wp-cli.phar config delete LOGGED_IN_KEY
-        php wp-cli.phar config delete NONCE_KEY
-        php wp-cli.phar config delete AUTH_SALT
-        php wp-cli.phar config delete SECURE_AUTH_SALT
-        php wp-cli.phar config delete LOGGED_IN_SALT
-        php wp-cli.phar config delete NONCE_SALT
+        php wp-cli.phar config set AUTH_KEY '${{ inputs.AUTH_KEY }}'
+        php wp-cli.phar config set SECURE_AUTH_KEY '${{ inputs.SECURE_AUTH_KEY }}'
+        php wp-cli.phar config set LOGGED_IN_KEY '${{ inputs.LOGGED_IN_KEY }}'
+        php wp-cli.phar config set NONCE_KEY '${{ inputs.NONCE_KEY }}'
+        php wp-cli.phar config set AUTH_SALT '${{ inputs.AUTH_SALT }}'
+        php wp-cli.phar config set SECURE_AUTH_SALT '${{ inputs.SECURE_AUTH_SALT }}'
+        php wp-cli.phar config set LOGGED_IN_SALT '${{ inputs.LOGGED_IN_SALT }}'
+        php wp-cli.phar config set NONCE_SALT '${{ inputs.NONCE_SALT }}'
+        php wp-cli.phar config set WP_CACHE_KEY_SALT '${{ inputs.WP_CACHE_KEY_SALT }}'
         php wp-cli.phar config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
         php wp-cli.phar config set "configProject" "require_once(__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php')" --raw --type="variable"
 
