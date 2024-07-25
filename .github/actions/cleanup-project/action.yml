@@ -19,8 +19,12 @@ runs:
         rm -rf src/Blocks/assets/
         rm -rf .husky
         rm -f .browserslistrc
+        rm -f .swcrc
+        rm -f .prettierrc
         rm -f .eslintignore
         rm -f .eslintrc
+        rm -f eslint.config.mjs
+        rm -f tailwind.config.mjs
         rm -f .gitignore
         rm -f .stylelintrc
         rm -f composer.json
@@ -30,6 +34,7 @@ runs:
         rm -f phpcs.xml.dist
         rm -f phpstan.neon.dist
         rm -f webpack.config.js
+        rm -f webpack.config.mjs
         rm -f postcss.config.js
         rm -f babel.config.js
         rm -f codeception.dist.yml

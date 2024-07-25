@@ -9,6 +9,7 @@ runs:
         rm -rf bin/
         rm -rf wp-content/uploads/
         rm -rf .git
+        rm -rf .husky
         rm -rf .github
         rm -f wp-config-sample.php
         rm -f .gitattributes
