@@ -39,30 +39,39 @@ inputs:
   AUTH_KEY:
     type: string
     description: 'WordPress salt key'
+    required: true
   SECURE_AUTH_KEY:
     type: string
     description: 'WordPress salt key'
+    required: true
   LOGGED_IN_KEY:
     type: string
     description: 'WordPress salt key'
+    required: true
   NONCE_KEY:
     type: string
     description: 'WordPress salt key'
+    required: true
   AUTH_SALT:
     type: string
     description: 'WordPress salt key'
+    required: true
   SECURE_AUTH_SALT:
     type: string
     description: 'WordPress salt key'
+    required: true
   LOGGED_IN_SALT:
     type: string
     description: 'WordPress salt key'
+    required: true
   NONCE_SALT:
     type: string
     description: 'WordPress salt key'
+    required: true
   WP_CACHE_KEY_SALT:
     type: string
     description: 'WordPress salt key'
+    required: true
 
 runs:
   using: composite
