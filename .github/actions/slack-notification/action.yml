@@ -32,6 +32,10 @@ inputs:
     type: string
     description: 'If set, will send the provided message instead of the default message when the passed status (through SLACK_COLOR) is cancelled.'
     default: 'Deployment cancelled!'
+  SLACKIFY_MARKDOWN:
+    type: string
+    description: 'If set to true, it will convert markdown to slack format.'
+    default: 'false'
 
 runs:
   using: composite
@@ -48,3 +52,4 @@ runs:
         SLACK_MESSAGE_ON_FAILURE: ${{ inputs.SLACK_MESSAGE_ON_FAILURE }}
         SLACK_MESSAGE_ON_CANCEL: ${{ inputs.SLACK_MESSAGE_ON_CANCEL }}
         SLACK_COLOR: ${{ job.status }}
+        SLACKIFY_MARKDOWN: ${{ inputs.SLACKIFY_MARKDOWN }}
