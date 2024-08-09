@@ -36,6 +36,9 @@ inputs:
     type: string
     description: 'If set to true, it will convert markdown to slack format.'
     default: 'false'
+  SLACK_CUSTOM_PAYLOAD:
+    type: string
+    description: 'If you want to send a custom payload to slack, you can pass it as a string to this variable.'
 
 runs:
   using: composite
@@ -53,3 +56,4 @@ runs:
         SLACK_MESSAGE_ON_CANCEL: ${{ inputs.SLACK_MESSAGE_ON_CANCEL }}
         SLACK_COLOR: ${{ job.status }}
         SLACKIFY_MARKDOWN: ${{ inputs.SLACKIFY_MARKDOWN }}
+        SLACK_CUSTOM_PAYLOAD: ${{ inputs.SLACK_CUSTOM_PAYLOAD }}
