@@ -1,0 +1,12 @@
+name: Setup correct folder/file permissions
+
+runs:
+  using: composite
+  steps:
+    - name: Setup correct folder/file permissions
+      shell: bash
+      run: |
+        find . -type f -exec chmod 644 {} +
+        find . -type d -exec chmod 755 {} +
+        chmod 440 /wp-config.php
+
