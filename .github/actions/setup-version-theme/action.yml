@@ -1,0 +1,15 @@
+name: Update theme version number
+
+runs:
+  using: composite
+  steps:
+    - name: Update theme version number
+      shell: bash
+      run: |
+        VERSION=${{ github.sha }}
+
+        sed -i -E "s/Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+/Version: $VERSION/" "style.css"
+        sed -i -E "s/Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+/Version: $VERSION/" "functions.php"
+
+        echo "Version number updated successfully to $VERSION."
+
