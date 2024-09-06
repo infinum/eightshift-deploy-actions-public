@@ -1,0 +1,26 @@
+name: Update plugin version number
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/plugins/<plugin_name>'
+    required: true
+  PLUGIN_NAME:
+    type: string
+    description: 'Name of your main entry point file. Usually the same as the plugin folder name.'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Update plugin version number
+      shell: bash
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      run: |
+        VERSION=${{ github.sha }}
+        MAIN=${{ inputs.PLUGIN_NAME }}
+
+        sed -i -E "s/Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+/Version: $VERSION/" "$MAIN.php"
+
+        echo "Version number updated successfully to $VERSION."
+
