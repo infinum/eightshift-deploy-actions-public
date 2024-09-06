@@ -1,10 +1,6 @@
 name: Update theme version number
 
 inputs:
-  ROOT_PATH:
-    type: string
-    description: 'Path to the root of the repository. Usually $GITHUB_WORKSPACE'
-    required: true
   PROJECT_PATH:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name>'
@@ -15,8 +11,7 @@ runs:
   steps:
     - name: Update theme version number
       shell: bash
-      with:
-        working-directory: ${{ inputs.PROJECT_PATH }}
+      working-directory: ${{ inputs.PROJECT_PATH }}
       run: |
         VERSION=${{ github.sha }}
 
