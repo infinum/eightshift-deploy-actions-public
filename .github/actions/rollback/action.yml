@@ -1,0 +1,79 @@
+name: Rollback deployment to the previous version
+
+inputs:
+  ROLLBACK_NUMBER:
+    type: string
+    description: 'Number of revisions to rollback'
+    required: true
+  SERVER_SSH_KEY:
+    type: string
+    description: 'Server SSH key'
+    required: true
+  SERVER_USER:
+    description: 'Server used for deployment'
+    required: true
+  SERVER_HOST:
+    description: 'Server host for deployment'
+    required: true
+  SERVER_ROOT:
+    description: 'Server root directory for deployment'
+    required: true
+  SERVER_PORT:
+    description: 'Server port for deployment'
+    required: true
+  RELEASES_FOLDER:
+    type: string
+    description: 'Releases folder name'
+    default: 'releases'
+
+runs:
+  using: composite
+  steps:
+    - name: Add server SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
+
+    - name: Rollback release
+      shell: bash
+      run: |
+        ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }} "cd ${{ inputs.SERVER_ROOT }} && bash -s ${{ inputs.ROLLBACK_NUMBER }} ${{ inputs.RELEASES_FOLDER }}" <<'EOF'
+          parentDirectory="$2"
+          index="$1"
+
+          # Ensure the directory exists
+          if [[ ! -d "$parentDirectory" ]]; then
+            echo "Error: Releases directory does not exist."
+            exit 1
+          fi
+
+          # Ensure index is a positive integer
+          if ! [[ "$index" =~ ^[0-9]+$ ]]; then
+            echo "Error: Rollback number must be a positive number."
+            exit 1
+          fi
+
+          # Get all subdirectories in the parent directory
+          subdirectories=($(ls -l "$parentDirectory" | sort -r | grep '^d' | awk '{print $9}'))
+
+          # Get total number of subdirectories
+          total=${#subdirectories[@]}
+
+          sort --version
+
+          # Check if the index is within the range of available subdirectories
+          if (( index < 1 || index > total )); then
+            echo "Error: Rollback number out of range. There are only $total releases available."
+            exit 1
+          fi
+
+          # Adjust index to match zero-based indexing of arrays
+          adjustedIndex=$((index - 1))
+
+          # Change the current symlink to the specified subdirectory
+          rm -rf current
+          ln -s ${parentDirectory}/${subdirectories[$adjustedIndex]} current
+
+          # Output success message
+          echo "Rollback to ${parentDirectory}/${subdirectories[$adjustedIndex]} successful."
+        EOF
