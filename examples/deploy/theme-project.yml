@@ -1,0 +1,82 @@
+name: Deploy to server - Theme project
+
+on:
+  push:
+
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        type: choice
+        description: "The environment to deploy to."
+        options:
+        - production
+        - staging
+        required: true
+        default: "staging"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build WordPress and deploy to server
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Setup WordPress
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-wordpress@main
+        with:
+          PHP_VERSION: '8.3'
+          ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+          SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+          WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          AUTH_KEY: ${{ secrets.AUTH_KEY }}
+          SECURE_AUTH_KEY: ${{ secrets.SECURE_AUTH_KEY }}
+          LOGGED_IN_KEY: ${{ secrets.LOGGED_IN_KEY }}
+          NONCE_KEY: ${{ secrets.NONCE_KEY }}
+          AUTH_SALT: ${{ secrets.AUTH_SALT }}
+          SECURE_AUTH_SALT: ${{ secrets.SECURE_AUTH_SALT }}
+          LOGGED_IN_SALT: ${{ secrets.LOGGED_IN_SALT }}
+          NONCE_SALT: ${{ secrets.NONCE_SALT }}
+          WP_CACHE_KEY_SALT: ${{ secrets.WP_CACHE_KEY_SALT }}
+
+      # - name: Setup custom secrets as environment variables
+      #   shell: bash
+      #   run: |
+      #     php wp-cli.phar config set S3_UPLOADS_BUCKET_URL '${{ secrets.S3_UPLOADS_BUCKET_URL }}'
+      #     php wp-cli.phar config set S3_UPLOADS_BUCKET '${{ secrets.S3_UPLOADS_BUCKET }}'
+      #     ...
+
+      - name: Install theme
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
+        with:
+          ROOT_PATH: $GITHUB_WORKSPACE
+          PROJECT_PATH: wp-content/themes/<theme-name>
+
+      - name: Update version number
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-version-theme@main
+        with:
+          PROJECT_PATH: wp-content/themes/<theme-name>
+
+      - name: Post install cleanup - root
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
+
+      - name: Setup correct folder/file permissions
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-permissions@main
+
+      - name: Deploy to server
+        uses: infinum/eightshift-deploy-actions-private/.github/actions/server-deploy@main
+        with:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_ROOT: ${{ secrets.SERVER_ROOT }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
