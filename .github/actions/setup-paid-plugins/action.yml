@@ -8,6 +8,15 @@ inputs:
     type: string
     description: 'Path to the setup file'
     required: true
+  REPO_ORGANISATION:
+    type: string
+    description: 'GitHub organisation name'
+    default: 'infinum'
+  REPO_NAME:
+    type: string
+    description: 'GitHub repo name'
+    default: 'eightshift-private-plugins'
+
 
 runs:
   using: composite
@@ -16,13 +25,13 @@ runs:
       id: variablesSetup
       shell: bash
       run: |
-        echo "PLUGINS_ES_PRIVATE=eightshift-private-plugins" >> "$GITHUB_OUTPUT"
+        echo "PLUGINS_ES_PRIVATE=${{ inputs.REPO_NAME }}" >> "$GITHUB_OUTPUT"
 
     - name: Checkout paid plugins
       uses: actions/checkout@v4
       with:
         token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
-        repository: 'infinum/${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}'
+        repository: '${{ inputs.REPO_ORGANISATION }}/${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}'
         path: ${{ steps.variablesSetup.outputs.PLUGINS_ES_PRIVATE }}
 
     - name: Install paid plugins
