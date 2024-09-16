@@ -75,7 +75,7 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-permissions@main
 
       - name: Deploy to server
-        uses: infinum/eightshift-deploy-actions-private/.github/actions/server-deploy@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/server-deploy@main
         with:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
