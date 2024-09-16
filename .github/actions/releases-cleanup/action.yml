@@ -1,0 +1,93 @@
+name: Clean up old releases
+
+inputs:
+  RELEASES_TO_KEEP:
+    type: string
+    description: 'Number of releases to keep. Minimal number is 1.'
+    default: 10
+  SERVER_SSH_KEY:
+    type: string
+    description: 'Server SSH key'
+    required: true
+  SERVER_USER:
+    description: 'Server used for deployment'
+    required: true
+  SERVER_HOST:
+    description: 'Server host for deployment'
+    required: true
+  SERVER_ROOT:
+    description: 'Server root directory for deployment'
+    required: true
+  SERVER_PORT:
+    description: 'Server port for deployment'
+    required: true
+  RELEASES_FOLDER:
+    type: string
+    description: 'Releases folder name'
+    default: 'releases'
+
+runs:
+  using: composite
+  steps:
+    - name: Add server SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
+
+    - name: Cleanup releases
+      shell: bash
+      run: |
+        ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }} "cd ${{ inputs.SERVER_ROOT }} && bash -s ${{ inputs.RELEASES_TO_KEEP }} ${{ inputs.RELEASES_FOLDER }}" <<'EOF'
+          parentDirectory="$2"
+          index="$1"
+
+          # Ensure the directory exists.
+          if [[ ! -d "$parentDirectory" ]]; then
+            echo "Error: '$parentDirectory' directory does not exist."
+            exit 1
+          fi
+
+          # Ensure index is a positive integer.
+          if ! [[ "$index" =~ ^[0-9]+$ ]]; then
+            echo "Error: Releases number you want to skip must be a positive number."
+            exit 1
+          fi
+
+          # Get all subdirectories in the parent directory.
+          subdirectories=($(ls -lt "$parentDirectory" | grep '^d' | awk '{print $9}' | sort -r))
+
+          # Bailout if parent directory is empty.
+          if ((${#subdirectories[@]} == 0)); then
+            echo "Error: '$parentDirectory' directory is empty."
+            exit 1
+          fi
+
+          # Check if the index is within the range of available subdirectories
+          if (( index < 1 )); then
+            echo "Error: Releases number must be 1 or higher."
+            exit 1
+          fi
+
+          # Add counter.
+          counter=0
+
+          if ((${#subdirectories[@]} == index)); then
+            echo "Error: Releases ."
+            exit 1
+          fi
+
+          echo 'Removed releases:'
+
+          # Loop all subdirectories and remove unnecessary ones.
+          for dir in "${subdirectories[@]}"; do	
+            if ((counter < $index)); then
+                ((counter++))
+                continue
+            fi
+
+            echo "- $dir"
+            rm -rf ${parentDirectory}/${dir}
+            ((counter++))
+          done
+
+        EOF
