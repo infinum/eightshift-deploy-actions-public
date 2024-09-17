@@ -75,9 +75,11 @@ inputs:
   PAID_PLUGINS_REPO_ORGANIZATION:
     type: string
     description: 'Paid plugins repository organization'
+    default: 'infinum'
   PAID_PLUGINS_REPO_NAME:
     type: string
     description: 'Paid plugins repository name'
+    default: 'eightshift-private-plugins'
 
 runs:
   using: composite
