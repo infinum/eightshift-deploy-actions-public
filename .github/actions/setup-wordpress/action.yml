@@ -74,10 +74,10 @@ inputs:
     required: true
   PAID_PLUGINS_REPO_ORGANIZATION:
     type: string
-    description: 'GitHub organization name'
+    description: 'Paid plugins repository organization'
   PAID_PLUGINS_REPO_NAME:
     type: string
-    description: 'GitHub repo name'
+    description: 'Paid plugins repository name'
 
 runs:
   using: composite
