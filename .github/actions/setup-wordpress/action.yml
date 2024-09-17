@@ -72,6 +72,12 @@ inputs:
     type: string
     description: 'WordPress salt key'
     required: true
+  PAID_PLUGINS_REPO_ORGANIZATION:
+    type: string
+    description: 'Paid plugins repository organization'
+  PAID_PLUGINS_REPO_NAME:
+    type: string
+    description: 'Paid plugins repository name'
 
 runs:
   using: composite
@@ -155,6 +161,8 @@ runs:
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+        REPO_ORGANIZATION: ${{ inputs.PAID_PLUGINS_REPO_ORGANIZATION }}
+        REPO_NAME: ${{ inputs.PAID_PLUGINS_REPO_NAME }}
 
     - name: Install Eightshift Forms plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
