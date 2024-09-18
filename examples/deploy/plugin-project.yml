@@ -80,3 +80,8 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_ROOT: ${{ secrets.SERVER_ROOT }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
+
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

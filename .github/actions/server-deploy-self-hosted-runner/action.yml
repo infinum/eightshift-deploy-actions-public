@@ -1,4 +1,4 @@
-name: Deploy to server using rsync and symlink
+name: Deploy to server using self hosted runner and artifact download and symlink
 
 inputs:
   SERVER_SSH_KEY:
@@ -34,19 +34,20 @@ runs:
       shell: bash
       run: |
         echo "NOW=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
+      
+    - name: Download a single artifact
+      uses: actions/download-artifact@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
 
-    - name: Zip everything for deployment
-      shell: bash
-      run: zip -rq ${{ steps.variablesSetup.outputs.NOW }}.zip .
-
     - name: Deploy with rsync
       shell: bash
-      run: rsync -avz -e 'ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no' ./${{ steps.variablesSetup.outputs.NOW }}.zip ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }}:${{ inputs.SERVER_ROOT }}
+      run: rsync -avz -e 'ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no' ./release.zip ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }}:${{ inputs.SERVER_ROOT }}
 
     - name: Symlink the new version
       shell: bash
@@ -56,8 +57,8 @@ runs:
           mkdir -p ${{ inputs.RELEASES_FOLDER }} &&
           mkdir -p shared/uploads &&
           mkdir -p shared/wflogs &&
-          unzip -q ${{ steps.variablesSetup.outputs.NOW }}.zip -d ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} &&
-          rm -f ${{ steps.variablesSetup.outputs.NOW }}.zip &&
+          unzip -q release.zip -d ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} &&
+          rm -f release.zip &&
           rm -rf current &&
           ln -s ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} current &&
           ln -s ../../../shared/uploads current/wp-content/uploads &&
