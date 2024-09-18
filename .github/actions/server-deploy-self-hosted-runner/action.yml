@@ -51,7 +51,7 @@ runs:
 
     - name: Deploy with rsync
       shell: bash
-      run: rsync -avz -e 'ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no' ./release.zip ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }}:${{ inputs.SERVER_ROOT }}
+      run: rsync -avz -e 'ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no' ./artifact/release.zip ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }}:${{ inputs.SERVER_ROOT }}
 
     - name: Symlink the new version
       shell: bash
