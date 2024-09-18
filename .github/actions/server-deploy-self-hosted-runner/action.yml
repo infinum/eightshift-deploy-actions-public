@@ -25,6 +25,10 @@ inputs:
     type: string
     description: 'Releases folder name'
     default: 'releases'
+  GITHUB_TOKEN:
+    type: string
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
 
 runs:
   using: composite
@@ -38,7 +42,7 @@ runs:
     - name: Download a single artifact
       uses: actions/download-artifact@v4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.9.0

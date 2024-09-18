@@ -14,6 +14,7 @@ inputs:
     description: 'Path to the setup file'
     required: true
   WORDPRESS_GH_ACTIONS:
+    type: string
     description: 'GitHub PAT token for the WordPress repository deployment'
     required: true
   DB_NAME:

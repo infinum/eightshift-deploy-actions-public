@@ -99,6 +99,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_ROOT: ${{ secrets.SERVER_ROOT }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
     name: Notify after finishing the deployment
