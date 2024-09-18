@@ -86,6 +86,7 @@ jobs:
   deploy:
     name: Deploy to the server
     runs-on: [self-hosted, "${{ inputs.ENVIRONMENT }}"]
+    environment: ${{ inputs.ENVIRONMENT }}
     needs: build
     cancel-timeout-minutes: 5
     strategy:
