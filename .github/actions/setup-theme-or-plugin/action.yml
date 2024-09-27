@@ -13,12 +13,17 @@ inputs:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
+  USE_NODE:
+    type: string
+    description: "Set do default if you don't have node_modules folder in your project."
+    default: 'true'
 
 runs:
   using: composite
   steps:
     - name: Install Node.js
       uses: actions/setup-node@v4
+      if: inputs.PROJECT_PATH == 'true'
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
@@ -32,6 +37,7 @@ runs:
 
     - name: Install assets packages
       working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.PROJECT_PATH == 'true'
       shell: bash
       run: |
         npm ci --no-progress --no-dev --no-audit
