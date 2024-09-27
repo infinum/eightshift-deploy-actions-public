@@ -16,6 +16,10 @@ inputs:
     type: string
     description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
     required: true
+  USE_NODE:
+    type: string
+    description: "Set do default if you don't have node_modules folder in your project."
+    default: 'true'
 
 runs:
   using: composite
@@ -34,6 +38,7 @@ runs:
       with:
         ROOT_PATH: $GITHUB_WORKSPACE
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+        USE_NODE: ${{ inputs.USE_NODE }}
 
     - name: Post install cleanup - root
       uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
