@@ -23,7 +23,7 @@ runs:
   steps:
     - name: Install Node.js
       uses: actions/setup-node@v4
-      if: inputs.PROJECT_PATH == 'true'
+      if: inputs.USE_NODE == 'true'
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
@@ -37,7 +37,7 @@ runs:
 
     - name: Install assets packages
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.PROJECT_PATH == 'true'
+      if: inputs.USE_NODE == 'true'
       shell: bash
       run: |
         npm ci --no-progress --no-dev --no-audit
