@@ -5,10 +5,6 @@ inputs:
     type: string
     description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
     default: 'latest'
-  ROOT_PATH:
-    type: string
-    description: 'Path to the root of the repository. Usually $GITHUB_WORKSPACE'
-    required: true
   PROJECT_PATH:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'

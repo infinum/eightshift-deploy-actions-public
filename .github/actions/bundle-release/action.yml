@@ -23,6 +23,10 @@ inputs:
     type: string
     description: "Set do default if you don't have node_modules folder in your project."
     default: 'true'
+  NODE_VERSION:
+    type: string
+    description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
+    default: 'latest'
 
 runs:
   using: composite
@@ -39,9 +43,9 @@ runs:
     - name: Bundle theme/plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
       with:
-        ROOT_PATH: $GITHUB_WORKSPACE
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         USE_NODE: ${{ inputs.USE_NODE }}
+        NODE_VERSION: ${{ inputs.NODE_VERSION }}
 
     - name: Post install cleanup - root
       uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
