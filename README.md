@@ -124,7 +124,7 @@ _Responsible person: DevOps or TL + Developer_
 
 _Responsible person: DevOps or TL + Developer_
 
-To add custom secrets in the deploy process add a custom step after the `Setup WordPress` step in the deploy action. Keep in mind you that the value is always wrapper in single quotes.
+To add custom secrets in the deploy process add a custom step after the `Setup WordPress` step in the deploy action. Keep in mind you that the value is always wrapped in single quotes.
 
 ```yaml
 	- name: Setup custom secrets as environment variables
