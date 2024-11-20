@@ -124,7 +124,7 @@ _Responsible person: DevOps or TL + Developer_
 
 _Responsible person: DevOps or TL + Developer_
 
-To add custom secrets in the deploy process add a custom step after the `Setup WordPress` step in the deploy action. Keep in mind you that the value is always wrapped in single quotes.
+To add custom secrets in the deploy process add a custom step after the `Setup WordPress` step in the deploy action. Keep in mind that the value is always wrapped in single quotes.
 
 ```yaml
 	- name: Setup custom secrets as environment variables
@@ -144,7 +144,7 @@ GitHub offers two types of secrets: variables and secrets. The difference betwee
 
 Also GitHub offers two types of usage for secrets: repository secrets and environment secrets. The difference between them is that repository secrets are available to all workflows in the repository, while environment secrets are available only to the workflows in the environment and this environment is defined in the workflow file.
 
-When setting up secrets, make sure to use environment secrets make sure you add them to the correct location and correct type based on the sensitivity of the data.
+When setting up secrets, make sure to use environment secrets and make sure you add them to the correct location and correct type based on the sensitivity of the data.
 
 **Env secrets:**
 
