@@ -82,7 +82,7 @@ The following secrets are added to the Infinum organization and are shared acros
 
 _Responsible person: DevOps or TL + Developer_
 
-- `SERVER_SSH_KEY` - used for the authentication to the server (public key).
+- `SERVER_SSH_KEY` - used for the authentication to the server (private key).
 - `SERVER_USER` - username to connect to the server.
 - `SERVER_HOST` - hostname to connect to the server.
 - `SERVER_PORT` - port to connect to the server.
