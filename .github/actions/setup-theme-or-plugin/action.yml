@@ -16,7 +16,7 @@ inputs:
   USE_BUN:
     type: string
     description: "If true, bun is used instead of npm for running scripts"
-    default: 'true'
+    default: 'false'
 
 runs:
   using: composite
