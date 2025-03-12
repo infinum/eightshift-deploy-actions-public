@@ -21,6 +21,10 @@ inputs:
     type: string
     description: 'Path to the submodule project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
+  USE_BUN:
+    type: string
+    description: "If true, bun is used instead of npm for running scripts"
+    default: 'false'
 
 runs:
   using: composite
@@ -39,18 +43,33 @@ runs:
         cache: npm
         cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
 
+    - name: Install Bun
+      if: inputs.USE_BUN == 'true'
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
     - name: Install dependencies
       uses: "ramsey/composer-install@v3"
       with:
         composer-options: "--no-dev"
         working-directory: ${{ inputs.PROJECT_PATH }}
 
-    - name: Install assets packages
+    - name: Install assets packages with npm
+      if: inputs.USE_BUN == 'false'
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
         npm ci --no-progress --no-dev --no-audit
         npm run build
+
+    - name: Install assets packages with bun
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.USE_BUN == 'true'
+      shell: bash
+      run: |
+        bun install --frozen-lockfile --production
+        bun run build
 
     - name: Post install cleanup - theme
       uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project@main
