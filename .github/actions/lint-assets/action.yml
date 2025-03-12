@@ -9,6 +9,10 @@ inputs:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
+  USE_BUN:
+    type: string
+    description: "If true, bun is used instead of npm for running scripts"
+    default: 'true'
 
 runs:
   using: composite
@@ -23,19 +27,48 @@ runs:
         cache: npm
         cache-dependency-path: ${{ inputs.PROJECT_PATH }}/package-lock.json
 
-    - name: Install assets packages
+    - name: Install Bun
+      if: inputs.USE_BUN == 'true'
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install assets packages with npm
       working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.USE_BUN == 'false'
       shell: bash
       run: |
         npm ci --no-progress --no-audit
         npm run build
 
-    - name: Run linter - JS
+    - name: Install assets packages with bun
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.USE_BUN == 'true'
+      shell: bash
+      run: |
+        bun install --frozen-lockfile
+        bun run build
+
+    - name: Run linter - JS with npm
+      if: inputs.USE_BUN == 'false'
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: npm run lintJs
 
-    - name: Run linters - CSS
+    - name: Run linters - CSS with npm
+      if: inputs.USE_BUN == 'false'
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: npm run lintStyle
+
+    - name: Run linter - JS with bun
+      if: inputs.USE_BUN == 'true'
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: bun run lintJs
+
+    - name: Run linters - CSS with bun
+      if: inputs.USE_BUN == 'true'
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: bun run lintStyle
