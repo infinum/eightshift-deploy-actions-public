@@ -60,6 +60,7 @@ runs:
           cd ${{ inputs.SERVER_ROOT }} &&
           mkdir -p ${{ inputs.RELEASES_FOLDER }} &&
           mkdir -p shared/uploads &&
+          mkdir -p shared/languages &&
           mkdir -p shared/wflogs &&
           unzip -q release.zip -d ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} &&
           rm -f release.zip &&
