@@ -23,11 +23,18 @@ runs:
   steps:
     - name: Install Node.js
       uses: actions/setup-node@v4
-      if: inputs.USE_NODE == 'true'
+      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'false'
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
         cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'true'
+      with:
+        node-version: ${{ inputs.NODE_VERSION }}
+        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/bun.lock"
 
     - name: Install Bun
       if: inputs.USE_BUN == 'true'

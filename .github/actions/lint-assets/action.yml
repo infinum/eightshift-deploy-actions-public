@@ -21,11 +21,19 @@ runs:
       uses: actions/checkout@v4
 
     - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
+      if: inputs.USE_BUN == 'false'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
         cache-dependency-path: ${{ inputs.PROJECT_PATH }}/package-lock.json
+
+    - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
+      if: inputs.USE_BUN == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.NODE_VERSION }}
+        cache-dependency-path: ${{ inputs.PROJECT_PATH }}/bun.lock
 
     - name: Install Bun
       if: inputs.USE_BUN == 'true'

@@ -37,11 +37,19 @@ runs:
         rm -rf ${{ inputs.ROOT_PATH }}/${{ inputs.SUBMODULE_PATH }}
 
     - name: Install Node.js
+      if: inputs.USE_BUN == 'false'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
         cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
+
+    - name: Install Node.js
+      if: inputs.USE_BUN == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.NODE_VERSION }}
+        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/bun.lock"
 
     - name: Install Bun
       if: inputs.USE_BUN == 'true'
