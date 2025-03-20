@@ -27,6 +27,10 @@ inputs:
     type: string
     description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
     default: 'latest'
+  USE_BUN:
+    type: string
+    description: "If true, bun is used instead of npm for running scripts"
+    default: 'false'
 
 runs:
   using: composite
@@ -43,8 +47,10 @@ runs:
     - name: Bundle theme/plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
       with:
+        ROOT_PATH: $GITHUB_WORKSPACE
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         USE_NODE: ${{ inputs.USE_NODE }}
+        USE_BUN: ${{ inputs.USE_BUN }}
         NODE_VERSION: ${{ inputs.NODE_VERSION }}
 
     - name: Post install cleanup - root
