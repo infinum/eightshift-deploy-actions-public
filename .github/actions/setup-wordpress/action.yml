@@ -136,7 +136,12 @@ runs:
         php wp-cli.phar config set NONCE_SALT '${{ inputs.NONCE_SALT }}'
         php wp-cli.phar config set WP_CACHE_KEY_SALT '${{ inputs.WP_CACHE_KEY_SALT }}'
         php wp-cli.phar config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
-        php wp-cli.phar config set "configProject" "require_once(__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php')" --raw --type="variable"
+
+        wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
+        wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
+
+        wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
+        wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
 
     - name: WordPress setup database
       shell: bash
