@@ -97,6 +97,7 @@ runs:
       run: |
         echo "HAS_PLUGINS_EIGHTSHIFT_SSO=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-sso")')" >> "$GITHUB_OUTPUT"
         echo "HAS_PLUGINS_EIGHTSHIFT_FORMS=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-forms")')" >> "$GITHUB_OUTPUT"
+        echo "HAS_PLUGINS_EIGHTSHIFT_UTILS=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-utils")')" >> "$GITHUB_OUTPUT"
         echo "HAS_PLUGINS_EIGHTSHIFT_MIGRATIONS=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("eightshift-migrations")')" >> "$GITHUB_OUTPUT"
         echo "HAS_PLUGINS_CORE=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("core")')" >> "$GITHUB_OUTPUT"
         echo "HAS_PLUGINS_PAID=$(cat ${{ inputs.SETUP_FILE }} | jq -e '.plugins | has("paid")')" >> "$GITHUB_OUTPUT"
@@ -180,6 +181,14 @@ runs:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: $GITHUB_WORKSPACE/setup.json
         REPO_NAME: eightshift-forms
+
+    - name: Install Eightshift Utils plugin
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
+      if: steps.variablesSetup.outputs.HAS_PLUGINS_EIGHTSHIFT_UTILS == 'true'
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: $GITHUB_WORKSPACE/setup.json
+        REPO_NAME: eightshift-utils
 
     - name: Install Eightshift Migrations plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-custom-eightshift-plugin@main
