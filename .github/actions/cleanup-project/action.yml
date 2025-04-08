@@ -46,3 +46,4 @@ runs:
         rm -f CODE_OF_CONDUCT.md
         rm -f README.md
         rm -f bun.lockb
+        rm -f preprocess-tailwind.js
