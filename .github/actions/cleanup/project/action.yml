@@ -9,7 +9,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Post install cleanup - theme/plugin
+    - name: Post install cleanup - project
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |

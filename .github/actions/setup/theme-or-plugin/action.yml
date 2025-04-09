@@ -64,7 +64,7 @@ runs:
         bun install --frozen-lockfile --production
         bun run build
 
-    - name: Post install cleanup - theme
+    - name: Post install cleanup - theme or plugin
       uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@docker
       with:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
