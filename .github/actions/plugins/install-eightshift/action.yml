@@ -92,7 +92,7 @@ runs:
             echo "Fetching data from GitHub API: $url"
 
             # Get the download URL from GitHub API.
-            download_url=$(curl -s -H "Authorization: token $token" "$url" | jq -r '.assets.[0].browser_download_url')
+            download_url=$(curl -s -H "Authorization: token $token" "$url" | jq -r '.assets.[0].url')
 
             if [ -z "$download_url" ]; then
               echo "Error: Failed to find download URL for $plugin v$version."
@@ -100,7 +100,7 @@ runs:
             fi
 
             echo "Downloading from: $download_url"
-            curl -sL -H "Authorization: token $token" -o "$zip_path" "$download_url"
+            curl -Ls -H "Accept: application/octet-stream" -H "Authorization: token $token" -o "$zip_path" "$download_url"
 
             if [ $? -ne 0 ] || [ ! -s "$zip_path" ]; then
               echo "Error: Failed to download $plugin from GitHub."
