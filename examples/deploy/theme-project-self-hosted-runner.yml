@@ -62,7 +62,7 @@ jobs:
           PROJECT_PATH: wp-content/themes/<theme-name>
 
       - name: Update version number
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/version-theme@docker
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@docker
         with:
           PROJECT_PATH: wp-content/themes/<theme-name>
 
@@ -70,7 +70,7 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@docker
 
       - name: Setup correct folder/file permissions
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/permissions@docker
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@docker
 
       - name: Zip everything for deployment
         shell: bash
