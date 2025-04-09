@@ -132,4 +132,4 @@ runs:
     - name: Install all plugins
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@docker
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}

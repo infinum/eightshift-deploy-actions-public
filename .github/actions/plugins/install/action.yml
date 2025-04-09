@@ -11,14 +11,14 @@ runs:
     - name: Install plugins core
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-core@docker
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Install plugins paid
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@docker
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Install plugins eightshift
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@docker
       with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
