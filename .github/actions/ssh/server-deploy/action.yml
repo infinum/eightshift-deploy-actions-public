@@ -1,0 +1,78 @@
+name: Deploy to server using rsync and symlink
+
+inputs:
+  SERVER_SSH_KEY:
+    type: string
+    description: 'Server SSH key'
+    required: true
+  SERVER_USER:
+    description: 'Server used for deployment'
+    required: true
+  SERVER_HOST:
+    description: 'Server host for deployment'
+    required: true
+  SERVER_ROOT:
+    description: 'Server root directory for deployment'
+    required: true
+  SERVER_PORT:
+    description: 'Server port for deployment'
+    required: true
+  RELEASES_TO_KEEP:
+    type: string
+    description: 'Number of releases to keep. Minimal number is 1.'
+    default: 10
+  RELEASES_FOLDER:
+    type: string
+    description: 'Releases folder name'
+    default: 'releases'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup variables
+      id: variablesSetup
+      shell: bash
+      run: |
+        echo "NOW=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
+
+    - name: Add server SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
+
+    - name: Zip everything for deployment
+      shell: bash
+      run: zip -rq ${{ steps.variablesSetup.outputs.NOW }}.zip .
+
+    - name: Deploy with rsync
+      shell: bash
+      run: rsync -avz -e 'ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no' ./${{ steps.variablesSetup.outputs.NOW }}.zip ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }}:${{ inputs.SERVER_ROOT }}
+
+    - name: Symlink the new version
+      shell: bash
+      run: |
+        ssh -p ${{ inputs.SERVER_PORT }} -o StrictHostKeyChecking=no ${{ inputs.SERVER_USER }}@${{ inputs.SERVER_HOST }} "
+          cd ${{ inputs.SERVER_ROOT }} &&
+          mkdir -p ${{ inputs.RELEASES_FOLDER }} &&
+          mkdir -p shared/uploads &&
+          mkdir -p shared/languages &&
+          mkdir -p shared/wflogs &&
+          unzip -q ${{ steps.variablesSetup.outputs.NOW }}.zip -d ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} &&
+          rm -f ${{ steps.variablesSetup.outputs.NOW }}.zip &&
+          rm -rf current &&
+          ln -s ${{ inputs.RELEASES_FOLDER }}/${{ steps.variablesSetup.outputs.NOW }} current &&
+          ln -s ../../../shared/uploads current/wp-content/uploads &&
+          ln -s ../../../shared/languages current/wp-content/languages &&
+          ln -s ../../../shared/wflogs current/wp-content/wflogs
+        "
+
+    - name: Cleanup old releases
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/releases-cleanup@docker
+      with:
+        RELEASES_TO_KEEP: ${{ inputs.RELEASES_TO_KEEP }}
+        SERVER_SSH_KEY: ${{ inputs.SERVER_SSH_KEY }}
+        SERVER_USER: ${{ inputs.SERVER_USER }}
+        SERVER_HOST: ${{ inputs.SERVER_HOST }}
+        SERVER_ROOT: ${{ inputs.SERVER_ROOT }}
+        SERVER_PORT: ${{ inputs.SERVER_PORT }}
+        RELEASES_FOLDER: ${{ inputs.RELEASES_FOLDER }}

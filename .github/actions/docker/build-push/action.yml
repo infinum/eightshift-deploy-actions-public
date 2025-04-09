@@ -1,0 +1,165 @@
+name: Docker build and push
+
+inputs:
+  CLOUD:
+    type: string
+    description: 'AWS, Azure or Github container registry?'
+    required: true
+  TAGS:
+    type: string
+    description: 'Set image tags'
+    required: true
+  AWS_REGION:
+    type: string
+    description: AWS region
+    required: false
+  AWS_ECR_REGION:
+    type: string
+    description: AWS region where ECR is set up
+    required: false
+  AWS_ECR_ACCOUNT_ID:
+    type: string
+    description: AWS ECR account id (if ECR is on a separate AWS account)
+    required: false
+  CONTEXT:
+    type: string
+    description: Docker build context
+    required: false
+    default: "."
+  FILE:
+    type: string
+    description: Dockerfile path
+    required: false
+  TARGET:
+    type: string
+    description: Target stage to build
+    required: false
+  PLATFORMS:
+    type: string
+    default: "linux/amd64"
+    required: false
+  PROVENANCE:
+    type: boolean
+    description: Enable Docker image provenance
+    required: false
+    default: false
+  BUILD_ARGS:
+    type: string
+    description: Docker build arguments
+    required: false
+  SSM_PARAM_STORE_PREFIX:
+    type: string
+    description: AWS SSM parameter store prefix
+    required: false
+  SSM_PARAM_STORE_DESTINATION_PATH:
+    type: string
+    description: Path to store pulled secrets
+    required: false
+  SECRET_FILES:
+    type: string
+    description: Docker build secrets
+    required: false
+  AWS_ROLE_TO_ASSUME:
+    type: string
+    description: AWS IAM role to assume
+    required: false
+  IMAGE_REGISTRY_URL:
+    type: string
+    description: Image registry URL
+    required: true
+  ACR_USERNAME:
+    type: string
+    description: Azure Container Registry username
+    required: false
+  ACR_PASSWORD:
+    type: string
+    description: Azure Container Registry password
+    required: false
+  GITHUB_TOKEN:
+    type: string
+    description: GitHub token for authentication
+    required: false
+  AWS_ACCESS_KEY_ID:
+    type: string
+    description: AWS access key ID
+    required: false
+  AWS_SECRET_ACCESS_KEY:
+    type: string
+    description: AWS secret access key
+    required: false
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: false
+
+runs:
+  using: composite
+  steps:
+  - name: Check out code
+    uses: actions/checkout@v4
+
+  - name: ACR authentication
+    if: ${{ inputs.CLOUD == 'Azure' }}
+    uses: azure/docker-login@v2
+    with:
+      login-server: ${{ inputs.IMAGE_REGISTRY_URL }}
+      username: ${{ inputs.ACR_USERNAME }}
+      password: ${{ inputs.ACR_PASSWORD }}
+
+  - name: Github authentication
+    if: ${{ inputs.CLOUD == 'Github' }}
+    uses: docker/login-action@v3
+    with:
+      registry: ${{ inputs.IMAGE_REGISTRY_URL }}
+      username: ${{ github.actor }}
+      password: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
+    with:
+      driver: docker-container
+
+  - name: Configure AWS credentials (with OIDC or access keys)
+    if: ${{ inputs.CLOUD == 'AWS' }}
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: ${{ inputs.AWS_ROLE_TO_ASSUME || '' }}
+      aws-region: ${{ inputs.AWS_REGION }}
+      role-session-name: "github-actions-session"
+      aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID || '' }}
+      aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY || '' }}
+
+  - name: Pull secrets from AWS SSM parameter store
+    if: ${{ inputs.SSM_PARAM_STORE_PREFIX }}
+    uses: infinum/action-pull-from-parameter-store@v1.0.0
+    with:
+      prefix: ${{ inputs.SSM_PARAM_STORE_PREFIX }}
+      destination_path: ${{ inputs.SSM_PARAM_STORE_DESTINATION_PATH }}
+
+  - name: Configure custom region for AWS ECR
+    if: ${{ inputs.CLOUD == 'AWS' && inputs.AWS_ECR_REGION && inputs.AWS_ECR_REGION != inputs.AWS_REGION }}
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-region: ${{ inputs.AWS_ECR_REGION }}
+
+  - name: Login to Amazon ECR
+    if: ${{ inputs.CLOUD == 'AWS' }}
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v2
+    with:
+      registries: ${{ inputs.AWS_ECR_ACCOUNT_ID }}
+
+  - name: Build and push
+    uses: docker/build-push-action@v6
+    with:
+      context: ${{ inputs.CONTEXT }}
+      platforms: ${{ inputs.PLATFORMS }}
+      provenance: ${{ inputs.PROVENANCE }}
+      file: ${{ inputs.FILE }}
+      target: ${{ inputs.TARGET }}
+      push: true
+      build-args: ${{ inputs.BUILD_ARGS }}
+      tags: ${{ inputs.TAGS }}
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
+      secret-files: ${{ inputs.SECRET_FILES }}

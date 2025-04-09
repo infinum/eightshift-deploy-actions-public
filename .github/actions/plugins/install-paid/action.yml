@@ -1,0 +1,130 @@
+name: Get and install paid plugins
+
+inputs:
+  WORDPRESS_GH_ACTIONS:
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    default: 'setup.json'
+  OUTPUT_PATH:
+    type: string
+    description: 'Path to the output folder'
+    default: './wp-content/plugins'
+  PRIVATE_REPO:
+    type: string
+    description: 'GitHub repository for private plugins'
+    default: 'infinum/eightshift-private-plugins'
+  GITHUB_USER:
+    type: string
+    description: 'GitHub user for private plugins'
+    default: 'infinum'
+  GITHUB_REPO:
+    type: string
+    description: 'GitHub repository for private plugins'
+    default: 'eightshift-private-plugins'
+
+runs:
+  using: composite
+  steps:
+    - name: Install paid plugins
+      shell: bash
+      run: |
+        download_paid_plugins() {
+          local output_dir="$1"
+          local json_file="$2"
+          local github_user="$3"
+          local github_repo="$4"
+          local token="$5"
+          local plugins_key="paid"
+
+          if [ -z "$output_dir" ]; then
+            echo "Error: No output directory provided."
+            return 1
+          fi
+
+          if [ -z "$plugins_key" ]; then
+            echo "Error: No plugins key provided."
+            return 1
+          fi
+
+          if ! command -v jq &> /dev/null; then
+            echo "Error: 'jq' is required but not installed."
+            return 1
+          fi
+
+          if [ ! -f "$json_file" ]; then
+            echo "Error: $json_file not found."
+            return 1
+          fi
+
+          mkdir -p "$output_dir"
+
+          # Check if plugin key exists
+          if ! jq -e --arg key "$plugins_key" '.plugins[$key]' "$json_file" > /dev/null; then
+            echo "Info: '$plugins_key' key not found in plugins. Skipping '$plugins_key' plugins."
+            return 0
+          fi
+
+          # Check if plugin key is empty
+          if [ "$(jq --arg key "$plugins_key" '.plugins[$key] | length' "$json_file")" -eq 0 ]; then
+            echo "Info: '$plugins_key' plugins list is empty. Nothing to download. Skipping '$plugins_key' plugins."
+            return 0
+          fi
+
+          echo "Downloading and extracting '$plugins_key' plugin into '$output_dir'"
+
+          echo '---------------------------------------';
+
+          jq -r --arg key "$plugins_key" '.plugins[$key] | to_entries[] | "\(.key) \(.value)"' "$json_file" | while read -r plugin version; do
+            url="https://api.github.com/repos/${github_user}/${github_repo}/contents/${plugin}/${version}.zip"
+            zip_path="${output_dir}/${plugin}.${version}.zip"
+            plugin_dir="${output_dir}/${plugin}"
+
+            echo "Processing $plugin v$version..."
+
+            # Clean up old zip
+            if [ -f "$zip_path" ]; then
+              echo "Removing existing zip: $zip_path"
+              rm -f "$zip_path"
+            fi
+
+            # Clean up old extracted folder
+            if [ -d "$plugin_dir" ]; then
+              echo "Removing existing plugin directory: $plugin_dir"
+              rm -rf "$plugin_dir"
+            fi
+
+            echo "Fetching data from GitHub API: $url"
+
+            # Get the download URL from GitHub API.
+            download_url=$(curl -s -H "Authorization: token $token" "$url" | jq -r '.download_url')
+
+            if [ -z "$download_url" ]; then
+              echo "Error: Failed to find download URL for $plugin v$version."
+              return 1
+            fi
+
+            echo "Downloading from: $download_url"
+            curl -sL -H "Authorization: token $token" -o "$zip_path" "$download_url"
+
+            if [ $? -ne 0 ] || [ ! -s "$zip_path" ]; then
+              echo "Error: Failed to download $plugin from GitHub."
+              return 1
+            fi
+
+            echo "Extracting..."
+            unzip -q "$zip_path" -d "$output_dir"
+            echo "$plugin extracted."
+
+            echo "Removing zip: $zip_path"
+            rm -f "$zip_path"
+
+            echo "Success!"
+
+            echo '---------------------------------------';
+          done
+        }
+
+        download_paid_plugins '${{ inputs.OUTPUT_PATH }}' '${{ inputs.SETUP_FILE }}' '${{ inputs.GITHUB_USER }}' '${{ inputs.GITHUB_REPO }}' '${{ inputs.WORDPRESS_GH_ACTIONS }}'

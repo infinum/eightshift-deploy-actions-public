@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Setup WordPress
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-wordpress@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@docker
         with:
           PHP_VERSION: '8.3'
           ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
@@ -56,21 +56,21 @@ jobs:
     #     ...
 
       - name: Install plugin
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-theme-or-plugin@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@docker
         with:
           ROOT_PATH: $GITHUB_WORKSPACE
           PROJECT_PATH: wp-content/plugins/<plugin-name>
 
       - name: Update version number
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-version-plugin@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/version-plugin@docker
         with:
           PROJECT_PATH: wp-content/plugins/<theme-name>
 
       - name: Post install cleanup - root
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup-project-root@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@docker
 
       - name: Setup correct folder/file permissions
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup-permissions@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/permissions@docker
 
       - name: Zip everything for deployment
         shell: bash
@@ -92,7 +92,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Deploy to server
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/server-deploy-self-hosted-runner@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy-self-hosted-runner@docker
         with:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -109,6 +109,6 @@ jobs:
       fail-fast: false
     steps:
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@docker
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

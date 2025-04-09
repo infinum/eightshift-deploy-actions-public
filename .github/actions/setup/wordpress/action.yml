@@ -1,0 +1,145 @@
+name: Install WordPress with core and paid plugins
+
+inputs:
+  PHP_VERSION:
+    type: string
+    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    required: true
+  ENVIRONMENT:
+    type: string
+    description: 'Environment to deploy to and WP enviroment constant. Available options are staging, production, etc.'
+    default: 'staging'
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    required: true
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: 'GitHub PAT token for the WordPress repository deployment'
+    required: true
+  DB_NAME:
+    type: string
+    description: 'WordPress database name'
+    required: true
+  DB_USER:
+    type: string
+    description: 'WordPress database user'
+    required: true
+  DB_PASSWORD:
+    type: string
+    description: 'WordPress database password'
+    required: true
+  DB_HOST:
+    type: string
+    description: 'WordPress database host'
+    required: true
+  DB_PREFIX:
+    type: string
+    description: 'WordPress database prefix'
+    default: 'wp_'
+  AUTH_KEY:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  SECURE_AUTH_KEY:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  LOGGED_IN_KEY:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  NONCE_KEY:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  AUTH_SALT:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  SECURE_AUTH_SALT:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  LOGGED_IN_SALT:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  NONCE_SALT:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  WP_CACHE_KEY_SALT:
+    type: string
+    description: 'WordPress salt key'
+    required: true
+  PAID_PLUGINS_REPO_ORGANIZATION:
+    type: string
+    description: 'Paid plugins repository organization'
+    default: 'infinum'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout the project repo
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        submodules: true
+
+    - name: Setup variables
+      id: variablesSetup
+      shell: bash
+      run: |
+        echo "CORE_VERSION=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.core')" >> "$GITHUB_OUTPUT"
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+        tools: composer:v2, wp-cli
+
+    - name: Download WordPress core
+      shell: bash
+      run: |
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+        php wp-cli.phar core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
+
+    - name: WordPress setup wp-config.php
+      shell: bash
+      run: |
+        php wp-cli.phar config create --dbname='${{ inputs.DB_NAME }}' --dbuser='${{ inputs.DB_USER }}' --dbpass='${{ inputs.DB_PASSWORD }}' --dbhost='${{ inputs.DB_HOST }}'  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check
+        php wp-cli.phar config delete WP_DEBUG
+        php wp-cli.phar config set AUTH_KEY '${{ inputs.AUTH_KEY }}'
+        php wp-cli.phar config set SECURE_AUTH_KEY '${{ inputs.SECURE_AUTH_KEY }}'
+        php wp-cli.phar config set LOGGED_IN_KEY '${{ inputs.LOGGED_IN_KEY }}'
+        php wp-cli.phar config set NONCE_KEY '${{ inputs.NONCE_KEY }}'
+        php wp-cli.phar config set AUTH_SALT '${{ inputs.AUTH_SALT }}'
+        php wp-cli.phar config set SECURE_AUTH_SALT '${{ inputs.SECURE_AUTH_SALT }}'
+        php wp-cli.phar config set LOGGED_IN_SALT '${{ inputs.LOGGED_IN_SALT }}'
+        php wp-cli.phar config set NONCE_SALT '${{ inputs.NONCE_SALT }}'
+        php wp-cli.phar config set WP_CACHE_KEY_SALT '${{ inputs.WP_CACHE_KEY_SALT }}'
+        php wp-cli.phar config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
+
+        wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
+        wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
+
+        wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
+        wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
+
+    - name: Install plugins core
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-core@docker
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+
+    - name: Install plugins paid
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@docker
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+
+    - name: Install plugins eightshift
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@docker
+      with:
+        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
