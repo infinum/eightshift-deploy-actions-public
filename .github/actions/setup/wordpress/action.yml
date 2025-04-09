@@ -129,17 +129,7 @@ runs:
         wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
         wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
 
-    - name: Install plugins core
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-core@docker
-      with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
-
-    - name: Install plugins paid
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@docker
-      with:
-        WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
-
-    - name: Install plugins eightshift
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@docker
+    - name: Install all plugins
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@docker
       with:
         WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
