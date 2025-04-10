@@ -9,16 +9,16 @@ runs:
   using: composite
   steps:
     - name: Install plugins core
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-core@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-core@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Install plugins paid
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Install plugins eightshift
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}

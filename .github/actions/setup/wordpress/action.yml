@@ -130,6 +130,6 @@ runs:
         wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
 
     - name: Install all plugins
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}

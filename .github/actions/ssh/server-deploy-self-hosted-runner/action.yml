@@ -72,7 +72,7 @@ runs:
         "
 
     - name: Cleanup old releases
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/releases-cleanup@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/releases-cleanup@main
       with:
         RELEASES_TO_KEEP: ${{ inputs.RELEASES_TO_KEEP }}
         SERVER_SSH_KEY: ${{ inputs.SERVER_SSH_KEY }}

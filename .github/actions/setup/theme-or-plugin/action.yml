@@ -65,6 +65,6 @@ runs:
         bun run build
 
     - name: Post install cleanup - theme or plugin
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
       with:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}

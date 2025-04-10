@@ -45,7 +45,7 @@ runs:
         coverage: none
 
     - name: Bundle theme/plugin
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
       with:
         ROOT_PATH: $GITHUB_WORKSPACE
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
@@ -54,7 +54,7 @@ runs:
         NODE_VERSION: ${{ inputs.NODE_VERSION }}
 
     - name: Post install cleanup - root
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@docker
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
 
     - name: Zip Folder
       shell: bash

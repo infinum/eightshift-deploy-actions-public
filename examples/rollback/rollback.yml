@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Rollback release
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/rollback@docker
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/rollback@main
         with:
           ROLLBACK_NUMBER: ${{ github.event.inputs.ROLLBACK_NUMBER }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -40,7 +40,7 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
 
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@docker
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_TITLE: 'Rollback to the previous version'
