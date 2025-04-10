@@ -9,10 +9,6 @@ inputs:
     type: string
     description: 'Set image tags'
     required: true
-  ENVIRONMENT:
-    type: string
-    description: 'Environment to deploy to and WP enviroment constant. Available options are staging, production, etc.'
-    required: true
   AWS_REGION:
     type: string
     description: AWS region
@@ -156,7 +152,6 @@ runs:
   - name: Build and push
     uses: docker/build-push-action@v6
     with:
-      environment: ${{ inputs.ENVIRONMENT }}
       context: ${{ inputs.CONTEXT }}
       platforms: ${{ inputs.PLATFORMS }}
       provenance: ${{ inputs.PROVENANCE }}
