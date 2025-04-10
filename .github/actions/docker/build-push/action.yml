@@ -8,7 +8,7 @@ inputs:
   TAGS:
     type: string
     description: 'Set image tags'
-    required: false
+    required: true
   AWS_REGION:
     type: string
     description: AWS region
