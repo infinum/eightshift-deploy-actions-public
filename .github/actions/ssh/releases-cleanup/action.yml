@@ -32,11 +32,11 @@ inputs:
   AWS_REGION:
     type: string
     description: 'AWS region for SSM tunnel'
-    required: false
+    default: ""
   AWS_ROLE:
     type: string
     description: 'AWS role for SSM tunnel'
-    required: false
+    default: ""
 
 runs:
   using: composite
@@ -55,11 +55,12 @@ runs:
       run: |
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
-        echo "# SSH over Session Manager" >> ~/.ssh/config
-        echo "host i-* mi-*" >> ~/.ssh/config
-        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
-        echo "    ProxyCommand sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"" >> ~/.ssh/config
-  
+        cat > ~/.ssh/config << 'EOF'
+        # SSH over Session Manager
+        host i-* mi-*
+          StrictHostKeyChecking no
+          ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+        EOF
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.9.0
       with:
