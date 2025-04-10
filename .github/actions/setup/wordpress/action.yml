@@ -13,7 +13,6 @@ inputs:
     type: string
     description: 'Path to the setup file'
     default: 'setup.json'
-    required: true
   WORDPRESS_GH_ACTIONS:
     type: string
     description: 'GitHub PAT token for the WordPress repository deployment'
