@@ -46,12 +46,13 @@ runs:
       if: ${{ inputs.SSM_DEPLOY }}
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: ${{ inputs.AWS_ROLE }}
+        aws-region: ${{ inputs.AWS_REGION }}
 
     # Setup SSH configuration so deploy action connects to the instance over SSM proxy
     - name: Setup ssh config for SSM
       if: ${{ inputs.SSM_DEPLOY }}
+      shell: bash
       run: |
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
