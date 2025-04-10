@@ -61,10 +61,12 @@ runs:
       run: |
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
-        echo "# SSH over Session Manager" >> ~/.ssh/config
-        echo "host i-* mi-*" >> ~/.ssh/config
-        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
-        echo "    ProxyCommand sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"" >> ~/.ssh/config
+        cat > ~/.ssh/config << 'EOF'
+        # SSH over Session Manager
+        host i-* mi-*
+          StrictHostKeyChecking no
+          ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+        EOF
 
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.9.0
@@ -98,7 +100,7 @@ runs:
         "
 
     - name: Cleanup old releases
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/releases-cleanup@main
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/releases-cleanup@hotfix/ssm-deploy
       with:
         RELEASES_TO_KEEP: ${{ inputs.RELEASES_TO_KEEP }}
         SERVER_SSH_KEY: ${{ inputs.SERVER_SSH_KEY }}
