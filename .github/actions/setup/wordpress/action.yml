@@ -103,7 +103,7 @@ runs:
     - name: Download WordPress core
       shell: bash
       run: |
-        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        curl -Os https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 
         php wp-cli.phar core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
 
