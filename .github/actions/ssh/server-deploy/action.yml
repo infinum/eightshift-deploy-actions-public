@@ -25,6 +25,18 @@ inputs:
     type: string
     description: 'Releases folder name'
     default: 'releases'
+  SSM_DEPLOY:
+    type: boolean
+    description: 'Use AWS SSM tunnel for deployment'
+    default: false
+  AWS_REGION:
+    type: string
+    description: 'AWS region for SSM tunnel'
+    required: false
+  AWS_ROLE:
+    type: string
+    description: 'AWS role for SSM tunnel'
+    required: false
 
 runs:
   using: composite
@@ -34,6 +46,25 @@ runs:
       shell: bash
       run: |
         echo "NOW=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
+
+    - name: Configure AWS Credentials
+      if: ${{ inputs.SSM_DEPLOY }}
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.AWS_ROLE }}
+        aws-region: ${{ inputs.AWS_REGION }}
+
+    # Setup SSH configuration so deploy action connects to the instance over SSM proxy
+    - name: Setup ssh config for SSM
+      if: ${{ inputs.SSM_DEPLOY }}
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo "# SSH over Session Manager" >> ~/.ssh/config
+        echo "host i-* mi-*" >> ~/.ssh/config
+        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
+        echo "    ProxyCommand sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"" >> ~/.ssh/config
 
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.9.0
