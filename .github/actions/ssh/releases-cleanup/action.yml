@@ -38,11 +38,6 @@ inputs:
     description: 'AWS role for SSM tunnel'
     required: false
 
-# Token used for storing AWS session
-permissions:
-  id-token: write
-  contents: read
-
 runs:
   using: composite
   steps:
