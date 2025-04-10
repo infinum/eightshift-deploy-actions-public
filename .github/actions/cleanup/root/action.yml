@@ -1,0 +1,24 @@
+name: Cleanup project from root
+
+runs:
+  using: composite
+  steps:
+    - name: Post install cleanup - root
+      shell: bash
+      run: |
+        rm -rf bin/
+        rm -rf wp-content/uploads/
+        rm -rf .git
+        rm -rf .husky
+        rm -rf .github
+        rm -f wp-config-sample.php
+        rm -f .gitattributes
+        rm -f .editorconfig
+        rm -f .gitignore
+        rm -f .gitmodules
+        rm -f .secrets
+        rm -f setup.json
+        rm -f wp-cli.phar
+        rm -f wp-config.php.tmpl
+        rm -f bun.lockb
+

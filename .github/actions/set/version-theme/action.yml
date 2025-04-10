@@ -1,0 +1,31 @@
+name: Set theme version number
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name>'
+    required: true
+  VERSION_NUMBER:
+    type: string
+    description: 'Override the version number to be used in the theme. If not provided, the GH.run_id will be used.'
+    default: ${{ github.run_id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set theme version number
+      shell: bash
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      run: |
+        VERSION=${{ inputs.VERSION_NUMBER }}
+        DATE=$(date +'%Y%m%d%H%M%S')
+
+        if [[ "$VERSION" == "${{ github.run_id }}" ]]; then
+          VERSION="${DATE}.${VERSION}"
+        fi
+
+        sed -i -E "s/Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+/Version: $VERSION/" "style.css"
+        sed -i -E "s/Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+/Version: $VERSION/" "functions.php"
+
+        echo "Version number updated successfully to $VERSION."
+

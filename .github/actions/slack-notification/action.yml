@@ -35,7 +35,7 @@ inputs:
   SLACKIFY_MARKDOWN:
     type: string
     description: 'If set to true, it will convert markdown to slack format.'
-    default: 'false'
+    default: false
   SLACK_CUSTOM_PAYLOAD:
     type: string
     description: 'If you want to send a custom payload to slack, you can pass it as a string to this variable.'
