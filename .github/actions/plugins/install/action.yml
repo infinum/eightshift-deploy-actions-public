@@ -4,6 +4,26 @@ inputs:
   WORDPRESS_GH_ACTIONS:
     description: 'GitHub PAT token for the WordPress repository deployment'
     required: true
+  SETUP_FILE:
+    type: string
+    description: 'Path to the setup file'
+    default: 'setup.json'
+  OUTPUT_PATH:
+    type: string
+    description: 'Path to the output folder'
+    default: './wp-content/plugins'
+  PLUGINS_PAID_GITHUB_USER:
+    type: string
+    description: 'GitHub user for private plugins'
+    default: 'infinum'
+  PLUGINS_PAID_GITHUB_REPO:
+    type: string
+    description: 'GitHub repository for private plugins'
+    default: 'eightshift-private-plugins'
+  PLUGINS_EIGHTSHIFT_GITHUB_USER:
+    type: string
+    description: 'GitHub repository for Eightshift plugins'
+    default: 'infinum'
 
 runs:
   using: composite
@@ -17,8 +37,16 @@ runs:
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-paid@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: ${{ inputs.SETUP_FILE }}
+        OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
+        GITHUB_USER: ${{ inputs.PLUGINS_PAID_GITHUB_USER }}
+        GITHUB_REPO: ${{ inputs.PLUGINS_PAID_GITHUB_REPO }}
 
     - name: Install plugins eightshift
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: ${{ inputs.SETUP_FILE }}
+        OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
+        GITHUB_USER: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_USER }}
+

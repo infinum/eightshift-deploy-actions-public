@@ -12,10 +12,6 @@ inputs:
     type: string
     description: 'Path to the output folder'
     default: './wp-content/plugins'
-  PRIVATE_REPO:
-    type: string
-    description: 'GitHub repository for private plugins'
-    default: 'infinum/eightshift-private-plugins'
   GITHUB_USER:
     type: string
     description: 'GitHub user for private plugins'

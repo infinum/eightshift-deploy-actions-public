@@ -12,6 +12,7 @@ inputs:
   SETUP_FILE:
     type: string
     description: 'Path to the setup file'
+    default: 'setup.json'
     required: true
   WORDPRESS_GH_ACTIONS:
     type: string
@@ -73,10 +74,22 @@ inputs:
     type: string
     description: 'WordPress salt key'
     required: true
-  PAID_PLUGINS_REPO_ORGANIZATION:
+  PLUGINS_PAID_GITHUB_USER:
     type: string
-    description: 'Paid plugins repository organization'
+    description: 'GitHub user for private plugins'
     default: 'infinum'
+  PLUGINS_PAID_GITHUB_REPO:
+    type: string
+    description: 'GitHub repository for private plugins'
+    default: 'eightshift-private-plugins'
+  PLUGINS_EIGHTSHIFT_GITHUB_USER:
+    type: string
+    description: 'GitHub repository for Eightshift plugins'
+    default: 'infinum'
+  PLUGINS_OUTPUT_PATH:
+    type: string
+    description: 'Plugins path to the output folder'
+    default: './wp-content/plugins'
 
 runs:
   using: composite
@@ -133,3 +146,8 @@ runs:
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        SETUP_FILE: ${{ inputs.SETUP_FILE }}
+        OUTPUT_PATH: ${{ inputs.PLUGINS_OUTPUT_PATH }}
+        PLUGINS_PAID_GITHUB_USER: ${{ inputs.PLUGINS_PAID_GITHUB_USER }}
+        PLUGINS_PAID_GITHUB_REPO: ${{ inputs.PLUGINS_PAID_GITHUB_REPO }}
+        PLUGINS_EIGHTSHIFT_GITHUB_USER: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_USER }}
