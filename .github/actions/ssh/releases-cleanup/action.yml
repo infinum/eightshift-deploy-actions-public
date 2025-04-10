@@ -26,15 +26,12 @@ inputs:
     description: 'Releases folder name'
     default: 'releases'
   SSM_DEPLOY:
-    type: boolean
     description: 'Use AWS SSM tunnel for deployment'
-    default: false
+    default: 'false'
   AWS_REGION:
-    type: string
     description: 'AWS region for SSM tunnel'
     default: ""
   AWS_ROLE:
-    type: string
     description: 'AWS role for SSM tunnel'
     default: ""
 
@@ -42,7 +39,7 @@ runs:
   using: composite
   steps:
     - name: Configure AWS Credentials
-      if: ${{ inputs.SSM_DEPLOY }}
+      if:  ${{ inputs.SSM_DEPLOY == 'true' }}
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ inputs.AWS_ROLE }}
@@ -50,7 +47,7 @@ runs:
 
     # Setup SSH configuration so deploy action connects to the instance over SSM proxy
     - name: Setup ssh config for SSM
-      if: ${{ inputs.SSM_DEPLOY }}
+      if: ${{ inputs.SSM_DEPLOY == 'true' }}
       shell: bash
       run: |
         mkdir -p ~/.ssh
