@@ -21,4 +21,5 @@ runs:
         rm -f wp-cli.phar
         rm -f wp-config.php.tmpl
         rm -f bun.lockb
+        rm -f bun.lock
 
