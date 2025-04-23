@@ -92,7 +92,7 @@ runs:
           fi
 
           # Check if the index is within the range of available subdirectories
-          if (( index < 1 )); then
+          if (( $index < 1 )); then
             echo "Error: Releases number must be 1 or higher."
             exit 1
           fi
@@ -100,7 +100,7 @@ runs:
           # Add counter.
           counter=0
 
-          if ((${#subdirectories[@]} == index)); then
+          if ((${#subdirectories[@]} == $index)); then
             echo "Error: Releases ."
             exit 1
           fi
@@ -120,3 +120,4 @@ runs:
           done
 
         EOF
+
