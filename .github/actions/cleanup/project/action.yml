@@ -32,14 +32,8 @@ runs:
           ! -name "style.css" \
           -delete
 
-        # Delete hidden dot files, excluding vendor and public folders
-        find . -type f -name ".*" \
-          ! -path "./vendor*" \
-          ! -path "*/vendor*" \
-          ! -path "./public*" \
-          ! -path "*/public*" \
-          ! -name "." ! -name ".." \
-          -delete
+        # Delete hidden dot files in current directory
+        find . -maxdepth 1 -type f -name ".*" ! -name "." ! -name ".." -delete
 
         # Find and delete empty directories (excluding vendor and public folders)
         find . -type d -empty \
