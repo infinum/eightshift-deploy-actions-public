@@ -51,7 +51,7 @@ runs:
     - name: WordPress setup wp-config.php
       shell: bash
       run: |
-        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check
+        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
         php wp-cli.phar config delete WP_DEBUG
 
         wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
