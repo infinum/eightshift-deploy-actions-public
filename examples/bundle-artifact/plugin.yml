@@ -20,7 +20,7 @@ jobs:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PHP_VERSION: "8.3"
+          PHP_VERSION: ${{ matrix.php }}
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables
@@ -32,6 +32,7 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: "wp-content/plugins/<plugin_name>"
+          NODE_VERSION: ${{ matrix.node }}
           USE_BUN: true
 
       - name: Set cache
@@ -50,10 +51,10 @@ jobs:
       - name: Zip Plugin
         shell: bash
         run: |
-          zip -rq <plugin_name>.zip wp-content/plugins/<plugin_name>
+          zip -rq release.zip wp-content/plugins/<plugin_name>
 
       - name: Upload zip to artifact
         uses: actions/upload-artifact@v4
         with:
-          name: <plugin_name>
-          path: <plugin_name>.zip
+          name: release
+          path: release.zip
