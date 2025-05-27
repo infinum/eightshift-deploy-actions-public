@@ -20,6 +20,8 @@ runs:
         rm -f composer.json
         rm -f package.json
         rm -f strauss.phar
+        rm -rf .git/
+        rm -rf .github/
 
         # Find and delete specified file types, excluding vendor, public folders and style.css
         find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" \
@@ -32,8 +34,11 @@ runs:
           ! -name "style.css" \
           -delete
 
-        # Delete hidden dot files and directories in current directory
-        find . -maxdepth 1 \( -type f -o -type d \) -name ".*" ! -name "." ! -name ".." -delete
+        # Delete hidden dot files in current directory
+        find . -maxdepth 1 -type f -name ".*" ! -name "." ! -name ".." -delete
+
+        # Delete hidden dot directories in current directory (including non-empty ones)
+        find . -maxdepth 1 -type d -name ".*" ! -name "." ! -name ".." -exec rm -rf {} \;
 
         # Find and delete empty directories (excluding vendor and public folders)
         find . -type d -empty \
