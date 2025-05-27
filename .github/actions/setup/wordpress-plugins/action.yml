@@ -13,12 +13,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout the project repo
-      uses: actions/checkout@v4
-      with:
-        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
-        submodules: true
-
     - name: Start MySQL
       shell: bash
       run: |
