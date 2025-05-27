@@ -18,17 +18,21 @@ runs:
         rm -rf assets/
         rm -rf src/Blocks/assets/
 
-        # Find and delete specified file types, excluding vendor and vendor-prefixed folders and style.css
+        # Find and delete specified file types, excluding vendor, public folders and style.css
         find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" -o -name "*.json" \
           -o -name "*.yml" -o -name "*.mjs" -o -name "*.md" -o -name "*.lock" \
           -o -name "*.lockb" -o -name "*.xml" -o -name "*.phar" -o -name "*.tmpl" -o -name "*.dist" -o -name ".*" \) \
           ! -path "./vendor*" \
           ! -path "*/vendor*" \
+          ! -path "./public*" \
+          ! -path "*/public*" \
           ! -name "style.css" \
           -delete
 
-        # Find and delete empty directories (excluding vendor and vendor-prefixed folders)
+        # Find and delete empty directories (excluding vendor and public folders)
         find . -type d -empty \
           ! -path "./vendor*" \
           ! -path "*/vendor*" \
+          ! -path "./public*" \
+          ! -path "*/public*" \
           -delete
