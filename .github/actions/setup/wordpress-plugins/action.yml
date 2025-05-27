@@ -1,0 +1,52 @@
+name: Install WordPress with core for building plugins
+
+inputs:
+  PHP_VERSION:
+    type: string
+    description: "PHP version to use. Available options are 7.4, 8.0, etc."
+    required: true
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: "GitHub PAT token for the WordPress repository deployment"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout the project repo
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        submodules: true
+
+    - name: Start MySQL
+      shell: bash
+      run: |
+        sudo /etc/init.d/mysql start
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+        tools: composer:v2, wp-cli
+
+    - name: Download WordPress core
+      shell: bash
+      run: |
+        wp core download --skip-content
+
+    - name: WordPress setup wp-config.php
+      shell: bash
+      run: |
+        wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
+
+    - name: WordPress setup database
+      shell: bash
+      run: |
+        wp db create
+
+    - name: WordPress core install
+      shell: bash
+      run: |
+        wp core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com
