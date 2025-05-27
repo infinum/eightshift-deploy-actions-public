@@ -7,18 +7,23 @@ on:
         type: choice
         description: "The environment to revert release."
         options:
-        - production
-        - staging
+          - production
+          - staging
         required: true
         default: "staging"
       ROLLBACK_NUMBER:
-        description: 'Number of release to rollback to. Current release if number 1, to rollback to the previous release enter number 2 or more.'
+        description: "Number of release to rollback to. Current release if number 1, to rollback to the previous release enter number 2 or more."
         required: true
-        default: '2'
+        default: "2"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+# Token used for storing AWS session
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   rollback-deployment:
@@ -38,9 +43,12 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_ROOT: ${{ secrets.SERVER_ROOT }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SSM_DEPLOY: true
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ROLE: ${{ secrets.AWS_ROLE }}
 
       - name: Notify
         uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_TITLE: 'Rollback to the previous version'
+          SLACK_TITLE: "Rollback to the previous version"

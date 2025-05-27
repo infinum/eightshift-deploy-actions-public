@@ -8,18 +8,14 @@ runs:
       run: |
         rm -rf bin/
         rm -rf wp-content/uploads/
-        rm -rf .git
-        rm -rf .husky
-        rm -rf .github
         rm -f wp-config-sample.php
-        rm -f .gitattributes
-        rm -f .editorconfig
-        rm -f .gitignore
-        rm -f .gitmodules
-        rm -f .secrets
         rm -f setup.json
-        rm -f wp-cli.phar
-        rm -f wp-config.php.tmpl
-        rm -f bun.lockb
-        rm -f bun.lock
 
+        # Find and delete specified file types in current directory only (no recursion), excluding style.css
+        find . -maxdepth 1 -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" \
+          -o -name "*.yml" -o -name "*.mjs" -o -name "*.md" -o -name "*.lock" \
+          -o -name "*.lockb" -o -name "*.xml" -o -name "*.phar" -o -name "*.tmpl" -o -name "*.dist" \) \
+          -delete
+
+        # Delete hidden dot files in current directory
+        find . -maxdepth 1 -type f -name ".*" ! -name "." ! -name ".." -delete

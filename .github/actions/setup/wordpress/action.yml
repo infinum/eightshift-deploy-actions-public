@@ -3,92 +3,16 @@ name: Install WordPress with core and paid plugins
 inputs:
   PHP_VERSION:
     type: string
-    description: 'PHP version to use. Available options are 7.4, 8.0, etc.'
+    description: "PHP version to use. Available options are 7.4, 8.0, etc."
     required: true
-  ENVIRONMENT:
-    type: string
-    description: 'Environment to deploy to and WP enviroment constant. Available options are staging, production, etc.'
-    default: 'staging'
   SETUP_FILE:
     type: string
-    description: 'Path to the setup file'
-    default: 'setup.json'
+    description: "Path to the setup file"
+    default: "setup.json"
   WORDPRESS_GH_ACTIONS:
     type: string
-    description: 'GitHub PAT token for the WordPress repository deployment'
+    description: "GitHub PAT token for the WordPress repository deployment"
     required: true
-  DB_NAME:
-    type: string
-    description: 'WordPress database name'
-    required: true
-  DB_USER:
-    type: string
-    description: 'WordPress database user'
-    required: true
-  DB_PASSWORD:
-    type: string
-    description: 'WordPress database password'
-    required: true
-  DB_HOST:
-    type: string
-    description: 'WordPress database host'
-    required: true
-  DB_PREFIX:
-    type: string
-    description: 'WordPress database prefix'
-    default: 'wp_'
-  AUTH_KEY:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  SECURE_AUTH_KEY:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  LOGGED_IN_KEY:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  NONCE_KEY:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  AUTH_SALT:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  SECURE_AUTH_SALT:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  LOGGED_IN_SALT:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  NONCE_SALT:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  WP_CACHE_KEY_SALT:
-    type: string
-    description: 'WordPress salt key'
-    required: true
-  PLUGINS_PAID_GITHUB_USER:
-    type: string
-    description: 'GitHub user for private plugins'
-    default: 'infinum'
-  PLUGINS_PAID_GITHUB_REPO:
-    type: string
-    description: 'GitHub repository for private plugins'
-    default: 'eightshift-private-plugins'
-  PLUGINS_EIGHTSHIFT_GITHUB_USER:
-    type: string
-    description: 'GitHub repository for Eightshift plugins'
-    default: 'infinum'
-  PLUGINS_OUTPUT_PATH:
-    type: string
-    description: 'Plugins path to the output folder'
-    default: './wp-content/plugins'
 
 runs:
   using: composite
@@ -105,6 +29,11 @@ runs:
       run: |
         echo "CORE_VERSION=$(cat ${{ inputs.SETUP_FILE }} | jq -r '.core')" >> "$GITHUB_OUTPUT"
 
+    - name: Start MySQL
+      shell: bash
+      run: |
+        sudo /etc/init.d/mysql start
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -115,38 +44,20 @@ runs:
     - name: Download WordPress core
       shell: bash
       run: |
-        curl -Os https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-        php wp-cli.phar core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
+        wp core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
 
     - name: WordPress setup wp-config.php
       shell: bash
       run: |
-        php wp-cli.phar config create --dbname='${{ inputs.DB_NAME }}' --dbuser='${{ inputs.DB_USER }}' --dbpass='${{ inputs.DB_PASSWORD }}' --dbhost='${{ inputs.DB_HOST }}'  --dbprefix=${{ inputs.DB_PREFIX }} --skip-check
-        php wp-cli.phar config delete WP_DEBUG
-        php wp-cli.phar config set AUTH_KEY '${{ inputs.AUTH_KEY }}'
-        php wp-cli.phar config set SECURE_AUTH_KEY '${{ inputs.SECURE_AUTH_KEY }}'
-        php wp-cli.phar config set LOGGED_IN_KEY '${{ inputs.LOGGED_IN_KEY }}'
-        php wp-cli.phar config set NONCE_KEY '${{ inputs.NONCE_KEY }}'
-        php wp-cli.phar config set AUTH_SALT '${{ inputs.AUTH_SALT }}'
-        php wp-cli.phar config set SECURE_AUTH_SALT '${{ inputs.SECURE_AUTH_SALT }}'
-        php wp-cli.phar config set LOGGED_IN_SALT '${{ inputs.LOGGED_IN_SALT }}'
-        php wp-cli.phar config set NONCE_SALT '${{ inputs.NONCE_SALT }}'
-        php wp-cli.phar config set WP_CACHE_KEY_SALT '${{ inputs.WP_CACHE_KEY_SALT }}'
-        php wp-cli.phar config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
+        wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
+        wp config delete WP_DEBUG
 
-        wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
-        wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
+    - name: WordPress setup database
+      shell: bash
+      run: |
+        wp db create
 
-        wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
-        wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
-
-    - name: Install all plugins
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
-      with:
-        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
-        SETUP_FILE: ${{ inputs.SETUP_FILE }}
-        OUTPUT_PATH: ${{ inputs.PLUGINS_OUTPUT_PATH }}
-        PLUGINS_PAID_GITHUB_USER: ${{ inputs.PLUGINS_PAID_GITHUB_USER }}
-        PLUGINS_PAID_GITHUB_REPO: ${{ inputs.PLUGINS_PAID_GITHUB_REPO }}
-        PLUGINS_EIGHTSHIFT_GITHUB_USER: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_USER }}
+    - name: WordPress core install
+      shell: bash
+      run: |
+        wp core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com

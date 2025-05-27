@@ -1,0 +1,13 @@
+name: Set all internal cache files
+
+runs:
+  using: composite
+  steps:
+    - name: Setup special constants
+      shell: bash
+      run: |
+        wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
+        wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
+
+        wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
+        wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"

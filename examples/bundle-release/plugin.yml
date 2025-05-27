@@ -2,7 +2,7 @@ name: Bundle release - Plugin
 
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,13 +15,48 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [ 'latest' ]
-        php: [ '8.3' ]
+        node: ["latest"]
+        php: ["8.3"]
     steps:
-      - name: Bundle release
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/bundle/release@main
+      - name: Setup WordPress
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PROJECT_PATH: '.'
-          REPO_NAME: 'eightshift-forms'
+          PHP_VERSION: "8.3"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
-          PHP_VERSION: ${{ matrix.php }}
+
+      - name: Setup custom secrets as environment variables
+        shell: bash
+        run: |
+          wp config set WP_ENVIRONMENT_TYPE 'production'
+
+      - name: Install plugin
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
+        with:
+          PROJECT_PATH: "wp-content/plugins/<plugin_name>"
+          USE_BUN: true
+
+      - name: Set cache
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
+        with:
+          PROJECT_PATH: "wp-content/plugins/<plugin_name>"
+
+      - name: Post install cleanup - plugin
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
+        with:
+          PROJECT_PATH: "wp-content/plugins/<plugin_name>"
+
+      - name: Setup correct folder/file permissions
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
+
+      - name: Zip Plugin
+        shell: bash
+        run: |
+          zip -rq <plugin_name>.zip wp-content/plugins/<plugin_name>
+
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+          file: <plugin_name>.zip
+          tag: ${{ github.ref }}
+          overwrite: true

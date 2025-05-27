@@ -1,0 +1,21 @@
+name: Set all internal cache files
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    required: true
+  FILE_NAME:
+    type: string
+    description: "File name user to trigger cache build"
+    default: "eightshift-cache.php"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup correct folder/file permissions
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: |
+        php ${{ inputs.FILE_NAME }}
+        rm -f ${{ inputs.FILE_NAME }}
