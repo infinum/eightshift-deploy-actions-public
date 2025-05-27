@@ -3,7 +3,7 @@ name: Cleanup project theme/plugin
 inputs:
   PROJECT_PATH:
     type: string
-    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
 
 runs:
@@ -17,33 +17,18 @@ runs:
         rm -rf node_modules/
         rm -rf assets/
         rm -rf src/Blocks/assets/
-        rm -rf .husky
-        rm -f .browserslistrc
-        rm -f .swcrc
-        rm -f .prettierrc
-        rm -f .eslintignore
-        rm -f .eslintrc
-        rm -f eslint.config.mjs
-        rm -f tailwind.config.mjs
-        rm -f .gitignore
-        rm -f .stylelintrc
-        rm -f composer.json
-        rm -f composer.lock
-        rm -f package-lock.json
-        rm -f package.json
-        rm -f phpcs.xml.dist
-        rm -f phpstan.neon.dist
-        rm -f webpack.config.js
-        rm -f webpack.config.mjs
-        rm -f postcss.config.js
-        rm -f babel.config.js
-        rm -f codeception.dist.yml
-        rm -f .env.testing
-        rm -f patchwork.json
-        rm -f strauss.phar
-        rm -f phpunit.xml
-        rm -f CHANGELOG.md
-        rm -f CODE_OF_CONDUCT.md
-        rm -f README.md
-        rm -f bun.lockb
-        rm -f preprocess-tailwind.js
+
+        # Find and delete specified file types, excluding vendor and vendor-prefixed folders and style.css
+        find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" -o -name "*.json" \
+          -o -name "*.yml" -o -name "*.mjs" -o -name "*.md" -o -name "*.lock" \
+          -o -name "*.lockb" -o -name "*.xml" -o -name "*.phar" -o -name "*.tmpl" -o -name "*.dist" -o -name ".*" \) \
+          ! -path "./vendor*" \
+          ! -path "*/vendor*" \
+          ! -name "style.css" \
+          -delete
+
+        # Find and delete empty directories (excluding vendor and vendor-prefixed folders)
+        find . -type d -empty \
+          ! -path "./vendor*" \
+          ! -path "*/vendor*" \
+          -delete
