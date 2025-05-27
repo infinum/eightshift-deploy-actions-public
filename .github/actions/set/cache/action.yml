@@ -12,9 +12,10 @@ inputs:
 
 runs:
   using: composite
-  working-directory: ${{ inputs.PROJECT_PATH }}
   steps:
     - name: Setup correct folder/file permissions
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
       run: |
         php ${{ inputs.FILE_NAME }}
         rm -f ${{ inputs.FILE_NAME }}
