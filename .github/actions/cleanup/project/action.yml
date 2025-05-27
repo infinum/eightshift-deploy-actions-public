@@ -17,6 +17,8 @@ runs:
         rm -rf node_modules/
         rm -rf assets/
         rm -rf src/Blocks/assets/
+        rm -f composer.json
+        rm -f package.json
 
         # Find and delete specified file types, excluding vendor, public folders and style.css
         find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" \
