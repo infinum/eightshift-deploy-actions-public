@@ -25,22 +25,12 @@ runs:
         coverage: none
         tools: composer:v2, wp-cli
 
-    - name: Download WordPress core
+    - name: WordPress setup
       shell: bash
       run: |
         wp core download --skip-content
-
-    - name: WordPress setup wp-config.php
-      shell: bash
-      run: |
         wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
-
-    - name: WordPress setup database
-      shell: bash
-      run: |
         wp db create
-
-    - name: WordPress core install
-      shell: bash
-      run: |
+        wp config set WP_ENVIRONMENT_TYPE 'production'
+        wp config set WP_DEBUG false
         wp core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com
