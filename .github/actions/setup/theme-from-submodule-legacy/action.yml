@@ -3,23 +3,23 @@ name: Install theme/plugin from submodule
 inputs:
   NODE_VERSION:
     type: string
-    description: "Node.js version to use. Available options are 14, 16, latest etc. Default is latest."
-    default: "latest"
+    description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
+    default: 'latest'
   ROOT_PATH:
     type: string
-    description: "Path to the root of the repository. Usually $GITHUB_WORKSPACE"
+    description: 'Path to the root of the repository. Usually $GITHUB_WORKSPACE'
     required: true
   PROJECT_PATH:
     type: string
-    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
   SUBMODULE_PATH:
     type: string
-    description: "Path to the root submodule folder from the root of the repository. Usually wordpress-infinum-web-redesign"
+    description: 'Path to the root submodule folder from the root of the repository. Usually wordpress-infinum-web-redesign'
     required: true
   SUBMODULE_PROJECT_PATH:
     type: string
-    description: "Path to the submodule project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    description: 'Path to the submodule project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
     required: true
   USE_BUN:
     type: string
@@ -78,3 +78,8 @@ runs:
       run: |
         bun install --frozen-lockfile --production
         bun run build
+
+    - name: Post install cleanup - theme from submodule
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
+      with:
+        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}

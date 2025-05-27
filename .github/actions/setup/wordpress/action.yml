@@ -44,28 +44,20 @@ runs:
     - name: Download WordPress core
       shell: bash
       run: |
-        curl -Os https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-        php wp-cli.phar core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
+        wp core download --version="${{ steps.variablesSetup.outputs.CORE_VERSION }}" --skip-content
 
     - name: WordPress setup wp-config.php
       shell: bash
       run: |
-        php wp-cli.phar config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
-        php wp-cli.phar config delete WP_DEBUG
-
-        wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
-        wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
-
-        wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
-        wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
+        wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
+        wp config delete WP_DEBUG
 
     - name: WordPress setup database
       shell: bash
       run: |
-        php wp-cli.phar db create
+        wp db create
 
     - name: WordPress core install
       shell: bash
       run: |
-        php wp-cli.phar core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com
+        wp core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com
