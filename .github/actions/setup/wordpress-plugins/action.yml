@@ -32,5 +32,4 @@ runs:
         wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check
         wp db create
         wp config set WP_ENVIRONMENT_TYPE 'production'
-        wp config set WP_DEBUG false
         wp core install --url=test.test --title="Deploy" --admin_user=test --admin_password=test --admin_email=test@test.com

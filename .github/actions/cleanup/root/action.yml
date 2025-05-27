@@ -1,9 +1,16 @@
 name: Cleanup project from root
 
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project root."
+    default: "."
+
 runs:
   using: composite
   steps:
     - name: Post install cleanup - root
+      working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
         rm -rf bin/

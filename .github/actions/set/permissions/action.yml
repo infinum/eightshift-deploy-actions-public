@@ -1,9 +1,16 @@
 name: Set correct folder/file permissions
 
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project root."
+    default: "."
+
 runs:
   using: composite
   steps:
     - name: Setup correct folder/file permissions
+      working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
         find . -type f -exec chmod 644 {} +
