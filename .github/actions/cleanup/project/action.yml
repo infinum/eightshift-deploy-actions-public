@@ -19,14 +19,23 @@ runs:
         rm -rf src/Blocks/assets/
 
         # Find and delete specified file types, excluding vendor, public folders and style.css
-        find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" -o -name "*.json" \
+        find . -type f \( -name "*.js" -o -name "*.css" -o -name "*.scss" \
           -o -name "*.yml" -o -name "*.mjs" -o -name "*.md" -o -name "*.lock" \
-          -o -name "*.lockb" -o -name "*.xml" -o -name "*.phar" -o -name "*.tmpl" -o -name "*.dist" -o -name ".*" \) \
+          -o -name "*.lockb" -o -name "*.xml" -o -name "*.phar" -o -name "*.tmpl" -o -name "*.dist" \) \
           ! -path "./vendor*" \
           ! -path "*/vendor*" \
           ! -path "./public*" \
           ! -path "*/public*" \
           ! -name "style.css" \
+          -delete
+
+        # Delete hidden dot files, excluding vendor and public folders
+        find . -type f -name ".*" \
+          ! -path "./vendor*" \
+          ! -path "*/vendor*" \
+          ! -path "./public*" \
+          ! -path "*/public*" \
+          ! -name "." ! -name ".." \
           -delete
 
         # Find and delete empty directories (excluding vendor and public folders)
