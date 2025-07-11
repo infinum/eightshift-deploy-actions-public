@@ -1,13 +1,28 @@
-name: Set all internal cache files
+name: Set special constants
+
+inputs:
+  USE_CONFIG_PROJECT:
+    type: string
+    description: "Set if you want to use configProject constant."
+    default: true
+  USE_CONSTANTS:
+    type: string
+    description: "Set if you want to use constants constant."
+    default: true
 
 runs:
   using: composite
   steps:
-    - name: Setup special constants
+    - name: Setup special constant - configProject
       shell: bash
+      if: inputs.USE_CONFIG_PROJECT == 'true'
       run: |
         wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
         wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
 
+    - name: Setup special constant - constants
+      shell: bash
+      if: inputs.USE_CONSTANTS == 'true'
+      run: |
         wp config set "constantsPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'eightshift/constants.php'" --raw --type="variable"
         wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
