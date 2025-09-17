@@ -76,7 +76,7 @@ runs:
       if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
-        bun install --frozen-lockfile --production
+        bun install --ignore-scripts --frozen-lockfile --production
         bun run build
 
     - name: Post install cleanup - theme from submodule
