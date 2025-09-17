@@ -68,7 +68,7 @@ runs:
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
-        npm ci --no-progress --no-dev --no-audit
+        npm ci --no-progress --no-dev --no-audit --ignore-scripts
         npm run build
 
     - name: Install assets packages with bun
@@ -76,7 +76,7 @@ runs:
       if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
-        bun install --frozen-lockfile --production
+        bun install --ignore-scripts --frozen-lockfile --production
         bun run build
 
     - name: Post install cleanup - theme from submodule

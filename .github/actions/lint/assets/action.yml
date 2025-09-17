@@ -46,7 +46,7 @@ runs:
       if: inputs.USE_BUN == 'false'
       shell: bash
       run: |
-        npm ci --no-progress --no-audit
+        npm ci --no-progress --no-audit --ignore-scripts
         npm run build
 
     - name: Install assets packages with bun
@@ -54,7 +54,7 @@ runs:
       if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
-        bun install --frozen-lockfile
+        bun install --ignore-scripts --frozen-lockfile
         bun run build
 
     - name: Run linter - JS with npm
