@@ -29,7 +29,7 @@ jobs:
   rollback-deployment:
     name: Rollback deployment to previous version - ${{ github.event.inputs.ROLLBACK_NUMBER }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     strategy:
       fail-fast: false
 

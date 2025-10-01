@@ -1,8 +1,6 @@
 name: Deploy to server - Theme project with Self hosted runner
 
 on:
-  push:
-
   workflow_dispatch:
     inputs:
       ENVIRONMENT:
@@ -13,6 +11,9 @@ on:
           - staging
         required: true
         default: "staging"
+  push:
+    branches:
+      - staging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +23,7 @@ jobs:
   build:
     name: Build WordPress and deploy to server
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     strategy:
       fail-fast: false
 
@@ -45,7 +46,7 @@ jobs:
           wp config set LOGGED_IN_SALT '${{ secrets.LOGGED_IN_SALT }}'
           wp config set NONCE_SALT '${{ secrets.NONCE_SALT }}'
           wp config set WP_CACHE_KEY_SALT '${{ secrets.WP_CACHE_KEY_SALT }}'
-          wp config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
+          wp config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}'
 
       - name: Set special constants
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/special-constants@main
@@ -102,8 +103,12 @@ jobs:
 
   deploy:
     name: Deploy to the server
-    runs-on: [self-hosted, "${{ inputs.ENVIRONMENT }}"]
-    environment: ${{ inputs.ENVIRONMENT }}
+    runs-on:
+      [
+        self-hosted,
+        "${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}",
+      ]
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     needs: build
     cancel-timeout-minutes: 5
     strategy:
@@ -122,7 +127,7 @@ jobs:
   notify:
     name: Notify after finishing the deployment
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     needs: deploy
     strategy:
       fail-fast: false
