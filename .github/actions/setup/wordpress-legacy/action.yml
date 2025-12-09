@@ -131,7 +131,7 @@ runs:
         wp config set LOGGED_IN_SALT '${{ inputs.LOGGED_IN_SALT }}'
         wp config set NONCE_SALT '${{ inputs.NONCE_SALT }}'
         wp config set WP_CACHE_KEY_SALT '${{ inputs.WP_CACHE_KEY_SALT }}'
-        wp config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT }}'
+        wp config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}'
 
         wp config set "configProjectPath" "__DIR__ . \DIRECTORY_SEPARATOR . 'wp-config-project.php'" --raw --type="variable"
         wp config set "configProject" 'file_exists($configProjectPath) ? require_once($configProjectPath) : ""' --raw --type="variable"
