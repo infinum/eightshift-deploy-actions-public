@@ -1,4 +1,4 @@
-name: Deploy to server - Plugin project
+name: Deploy to server using SSH - Theme project with Self hosted runner
 
 on:
   workflow_dispatch:
@@ -19,13 +19,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Token used for storing AWS session
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  deploy:
+  build:
     name: Build WordPress and deploy to server
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
@@ -61,23 +56,23 @@ jobs:
         with:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
-      - name: Install plugin
+      - name: Install theme
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
-          PROJECT_PATH: wp-content/plugins/<plugin_name>
+          PROJECT_PATH: wp-content/themes/<theme_name>
           USE_BUN: true
 
-       - name: Set cache
+      - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
         with:
-          PROJECT_PATH: wp-content/plugins/<plugin_name>
+          PROJECT_PATH: wp-content/themes/<theme_name>
 
       - name: Update version number
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-plugin@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@main
         with:
-          PROJECT_PATH: wp-content/plugins/<plugin_name>
+          PROJECT_PATH: wp-content/themes/<theme_name>
 
-     - name: Setup real database constants
+      - name: Setup real database constants
         shell: bash
         run: |
           wp config set DB_NAME '${{ secrets.DB_NAME }}'
@@ -91,23 +86,52 @@ jobs:
       - name: Post install cleanup - project
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
         with:
-          PROJECT_PATH: wp-content/plugins/<plugin_name>
+          PROJECT_PATH: wp-content/themes/<theme_name>
 
       - name: Setup correct folder/file permissions
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
 
+      - name: Zip everything for deployment
+        shell: bash
+        run: zip -rq release.zip .
+
+      - name: Upload release to artifacts
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-step
+        with:
+          path: release.zip
+
+  deploy:
+    name: Deploy to the server
+    runs-on:
+      [
+        self-hosted,
+        "${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}",
+      ]
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
+    needs: build
+    cancel-timeout-minutes: 5
+    strategy:
+      fail-fast: false
+    steps:
       - name: Deploy to server
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy-self-hosted-runner@main
         with:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_ROOT: ${{ secrets.SERVER_ROOT }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SSM_DEPLOY: true
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ROLE: ${{ secrets.AWS_ROLE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  notify:
+    name: Notify after finishing the deployment
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
+    needs: deploy
+    strategy:
+      fail-fast: false
+    steps:
       - name: Notify
         uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:

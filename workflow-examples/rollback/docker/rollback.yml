@@ -1,0 +1,42 @@
+name: Rollback
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target Environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  context:
+    name: Setup context
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      aws_region: ${{ steps.get.outputs.aws_region }}
+      aws_ecs_cluster: ${{ steps.get.outputs.aws_ecs_cluster }}
+      aws_ecs_deploy_role: ${{ steps.get.outputs.aws_deploy_role }}
+    steps:
+      - id: get
+        run: |
+          echo "aws_region=${{ vars.AWS_REGION }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecs_cluster=${{ vars.AWS_ECS_CLUSTER }}" >> "$GITHUB_OUTPUT"
+          echo "aws_deploy_role=${{ vars.AWS_DEPLOY_ROLE }}" >> "$GITHUB_OUTPUT"
+  rollback:
+    name: Rollback Backend
+    needs: context
+    uses: infinum/devops-pipelines/.github/workflows/rollback-ecs-service.yml@feature/add-ecs-rollback-workflow
+    with:
+      aws_region: ${{ needs.context.outputs.aws_region }}
+      aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
+      ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
+      ecs_service: <ecs_service>
