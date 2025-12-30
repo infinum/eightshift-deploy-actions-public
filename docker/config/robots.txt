@@ -1,4 +1,4 @@
-Sitemap: https://infinum.com/sitemap_index.xml
+Sitemap: https://<project-url>/sitemap_index.xml
 
 User-agent: *
 Disallow: /wp-admin/
