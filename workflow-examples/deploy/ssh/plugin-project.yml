@@ -1,4 +1,4 @@
-name: Deploy to server - Plugin project
+name: Deploy to server using SSH - Plugin project
 
 on:
   workflow_dispatch:
@@ -67,7 +67,7 @@ jobs:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
           USE_BUN: true
 
-       - name: Set cache
+      - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
@@ -77,7 +77,7 @@ jobs:
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
-     - name: Setup real database constants
+      - name: Setup real database constants
         shell: bash
         run: |
           wp config set DB_NAME '${{ secrets.DB_NAME }}'

@@ -1,4 +1,4 @@
-name: Deploy to server - Plugin project with Self hosted runner
+name: Deploy to server using SSH - Plugin project with Self hosted runner
 
 on:
   workflow_dispatch:
@@ -7,8 +7,8 @@ on:
         type: choice
         description: "The environment to deploy to."
         options:
-        - production
-        - staging
+          - production
+          - staging
         required: true
         default: "staging"
   push:
@@ -62,7 +62,7 @@ jobs:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
           USE_BUN: true
 
-       - name: Set cache
+      - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
@@ -72,7 +72,7 @@ jobs:
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
-     - name: Setup real database constants
+      - name: Setup real database constants
         shell: bash
         run: |
           wp config set DB_NAME '${{ secrets.DB_NAME }}'
@@ -103,7 +103,11 @@ jobs:
 
   deploy:
     name: Deploy to the server
-    runs-on: [self-hosted, "${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}"]
+    runs-on:
+      [
+        self-hosted,
+        "${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}",
+      ]
     environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     needs: build
     cancel-timeout-minutes: 5

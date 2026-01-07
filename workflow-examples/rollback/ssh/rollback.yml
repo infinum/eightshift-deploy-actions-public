@@ -1,4 +1,4 @@
-name: Rollback
+name: Rollback using SSH
 
 on:
   workflow_dispatch:

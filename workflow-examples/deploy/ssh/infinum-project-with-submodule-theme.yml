@@ -1,4 +1,4 @@
-name: Deploy to server - Theme project
+name: Deploy to server using SSH - Infinum project with submodule theme
 
 on:
   workflow_dispatch:
@@ -61,10 +61,13 @@ jobs:
         with:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
-      - name: Install theme
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
+      - name: Install theme from submodule
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-from-submodule@main
         with:
+          ROOT_PATH: $GITHUB_WORKSPACE
           PROJECT_PATH: wp-content/themes/<theme_name>
+          SUBMODULE_PATH: <submodule_path>
+          SUBMODULE_PROJECT_PATH: wp-content/themes/<theme_name>
           USE_BUN: true
 
       - name: Set cache

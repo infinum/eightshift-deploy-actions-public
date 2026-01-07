@@ -1,0 +1,120 @@
+name: Deploy to server using Docker - Theme project
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        type: choice
+        description: "The environment to deploy to."
+        options:
+          - production
+          - staging
+        required: true
+        default: "staging"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  context:
+    name: Setup context
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    environment: ${{ inputs.ENVIRONMENT }}
+    outputs:
+      aws_region: ${{ steps.get.outputs.aws_region }}
+      aws_ecr_uri: ${{ steps.get.outputs.aws_ecr_uri }}
+      aws_ecr_region: ${{ steps.get.outputs.aws_ecr_region }}
+      aws_ecr_account_id: ${{ steps.get.outputs.aws_ecr_account_id }}
+      aws_ecs_cluster: ${{ steps.get.outputs.aws_ecs_cluster }}
+      aws_ecs_deploy_role: ${{ steps.get.outputs.aws_ecs_deploy_role }}
+      git_revision: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - id: get
+        run: |
+          echo "aws_region=${{ vars.AWS_REGION }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecr_uri=${{ vars.AWS_ECR_URI }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecr_region=${{ vars.AWS_ECR_REGION }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecr_account_id=${{ vars.AWS_ECR_ACCOUNT_ID }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecs_cluster=${{ vars.AWS_ECS_CLUSTER }}" >> "$GITHUB_OUTPUT"
+          echo "aws_ecs_deploy_role=${{ vars.AWS_DEPLOY_ROLE }}" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    name: Install WordPress Docker image and deploy
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    needs: context
+
+    steps:
+      - name: Checkout the project repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+
+      - name: Install all plugins
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
+        with:
+          WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
+
+      - name: Install theme
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
+        with:
+          PROJECT_PATH: wp-content/themes/<theme_name>
+          USE_BUN: true
+
+      - name: Update version number
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@main
+        with:
+          PROJECT_PATH: wp-content/themes/<theme_name>
+
+      - name: Post install cleanup - root
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
+
+      - name: Post install cleanup - project
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
+        with:
+          PROJECT_PATH: wp-content/themes/<theme_name>
+
+      - name: Setup correct folder/file permissions
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
+
+      - name: Build and push Docker image
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/docker/build-push@main
+        with:
+          CLOUD: "aws"
+          TAGS: "${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}"
+          IMAGE_REGISTRY_URL: ${{ needs.context.outputs.aws_ecr_uri }}
+          AWS_REGION: ${{ needs.context.outputs.aws_region }}
+          AWS_ROLE_TO_ASSUME: ${{ needs.context.outputs.aws_ecs_deploy_role }}
+          AWS_ECR_ACCOUNT_ID: ${{ needs.context.outputs.aws_ecr_account_id }}
+          AWS_ECR_REGION: ${{ needs.context.outputs.aws_ecr_region }}
+
+  deploy:
+    needs: [context, build-and-push]
+    name: Deploy WordPress
+    uses: infinum/devops-pipelines/.github/workflows/deploy-ecs-task-definition.yml@v3.0.0
+    with:
+      git_ref: ${{ github.ref }}
+      image_uri: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
+      environment: ${{ inputs.ENVIRONMENT }}
+      aws_region: ${{ needs.context.outputs.aws_region }}
+      ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
+      ecs_service: <ecs_service>
+      task_def_path: ".aws/ecs/task-definition-app-${{ inputs.ENVIRONMENT }}.json"
+      container_name: <container_name>
+      aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [context, deploy]
+    steps:
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
