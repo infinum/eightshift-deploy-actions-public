@@ -15,7 +15,7 @@ Your project must contain the following files from the `docker` folder:
 - `config/wordfence-waf.php` - Wordfence WAF file for the container, copied to the project root and becomes `wordfence-waf.php`.
 - `Dockerfile` - Dockerfile for the container with the WordPress installation and configuration. You set WordPress version and PHP version in the Dockerfile.
 
-In order for the Docker setup to work properly you project `MUST` have Eightshift Utils plugin installed and active in the database in order for the `knock-knock` endpoint to work.
+In order for the Docker setup to work properly you project `MUST` have Eightshift Utils plugin installed and active in the database, together with the _'Knock-knock' route_ feature activated to make sure website health checks work properly.
 
 If you are setting up the Docker setup for the first time, you need to ask your `DevOps` to connect to the server using SSM and activate the `Eightshift Utils` plugin using the `wp-cli.phar` command.
 
