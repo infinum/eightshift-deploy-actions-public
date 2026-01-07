@@ -1,4 +1,4 @@
-name: Deploy to server using SSH - Theme project with Self hosted runner
+name: Deploy to server using SSH - Theme project with Self-hosted runner
 
 on:
   workflow_dispatch:
