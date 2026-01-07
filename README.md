@@ -8,9 +8,9 @@ Depending on the type of the project and infrastructure, you can choose to deplo
 
 Standard projects contains workflows that can be find in the `examples` directory:
 
-- ci.yml - runs checks on the project (e.g. linters, unit tests, ...)
-- deploy.yml - deploys the project on the server based on the selected environment and branch.
-- rollback.yml - rollback the project to the previous release.
+- `ci.yml` - runs checks on the project (e.g. linters, unit tests, ...)
+- `deploy.yml` - deploys the project on the server based on the selected environment and branch.
+- `rollback.yml` - rollback the project to the previous release.
 
 ## Documentation
 
