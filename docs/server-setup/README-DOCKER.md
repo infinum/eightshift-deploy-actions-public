@@ -6,7 +6,7 @@ Deploying docker is a bit different than deploying using SSH. The Docker image i
 
 Your project must contain the following files from the `docker` folder:
 
-- `.github/workflows` - all docker deployment workflows from the `workflow-examples/deploy/docker` folder.
+- `.github/workflows` - all Docker deployment workflows from the `workflow-examples/deploy/docker` folder.
 - `.aws` - AWS task definition JSON files for the ECS service.
 - `config/wp-config-container.php` - WordPress configuration file for the container that is used to store all secrets, configurations and other settings that is in the deploy process copied to the project root and becomes `wp-config.php`.
 - `config/nginx.conf` - Nginx configuration file for the container.
