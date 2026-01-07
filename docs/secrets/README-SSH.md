@@ -4,7 +4,7 @@ In order to use the deploy action using SSH, a few secrets must be added to the 
 
 ## Env secrets/variables vs Repository secrets/variables
 
-GitHub offers two types of secrets: variables and secrets. The difference between them is that variables are visible in the logs and in the GUI, while secrets are not. Once set secret can't be viewed again.
+GitHub offers two types of secrets: variables and secrets. The difference between them is that variables are visible in the logs and in the GUI, while secrets are not. Once set, secrets can't be viewed again.
 
 Also GitHub offers two types of usage for secrets: repository secrets and environment secrets. The difference between them is that repository secrets are available to all workflows in the repository, while environment secrets are available only to the workflows in the environment and this environment is defined in the workflow file.
 
