@@ -1,4 +1,5 @@
 name: Clean up old releases
+description: 'Clean up old releases'
 
 inputs:
   RELEASES_TO_KEEP:

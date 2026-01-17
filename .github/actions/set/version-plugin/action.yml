@@ -1,4 +1,5 @@
 name: Set plugin version number
+description: 'Set plugin version number'
 
 inputs:
   PROJECT_PATH:

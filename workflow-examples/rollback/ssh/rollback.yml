@@ -1,16 +1,20 @@
-name: Rollback using SSH
+name: Rollback
+
+permissions:
+  id-token: write
+  contents: read
 
 on:
   workflow_dispatch:
     inputs:
       ENVIRONMENT:
         type: choice
-        description: "The environment to revert release."
-        options:
-          - production
-          - staging
+        description: "Target Environment"
         required: true
         default: "staging"
+        options:
+          - staging
+          - production
       ROLLBACK_NUMBER:
         description: "Number of release to rollback to. Current release if number 1, to rollback to the previous release enter number 2 or more."
         required: true
@@ -20,19 +24,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Token used for storing AWS session
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  rollback-deployment:
-    name: Rollback deployment to previous version - ${{ github.event.inputs.ROLLBACK_NUMBER }}
+  context:
+    name: Setup context - ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
-    strategy:
-      fail-fast: false
+    outputs:
+      environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
+    steps:
+      - id: get
+        run: |
+          echo "environment=${{ inputs.ENVIRONMENT }}" >> "$GITHUB_OUTPUT"
 
+  rollback:
+    name: Rollback
+    needs: [context]
     steps:
       - name: Rollback release
         uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/rollback@main
@@ -47,8 +53,13 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ROLE: ${{ secrets.AWS_ROLE }}
 
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, rollback]
+    steps:
       - name: Notify
         uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_TITLE: "Rollback to the previous version"

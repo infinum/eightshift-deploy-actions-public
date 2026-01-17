@@ -1,4 +1,5 @@
 name: Set all internal cache files
+description: 'Set all internal cache files'
 
 inputs:
   PROJECT_PATH:

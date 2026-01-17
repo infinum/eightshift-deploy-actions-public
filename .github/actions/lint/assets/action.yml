@@ -1,4 +1,5 @@
 name: Lint assets - JS, CSS
+description: 'Lint assets - JS, CSS'
 
 inputs:
   NODE_VERSION:

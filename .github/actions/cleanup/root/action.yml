@@ -1,4 +1,5 @@
 name: Cleanup project from root
+description: 'Cleanup project from root'
 
 inputs:
   PROJECT_PATH:

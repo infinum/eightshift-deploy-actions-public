@@ -1,4 +1,5 @@
 name: Send Slack notification
+description: 'Send a notification to Slack when a GitHub Actions workflow completes.'
 
 inputs:
   SLACK_WEBHOOK:

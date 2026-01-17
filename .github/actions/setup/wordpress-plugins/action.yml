@@ -1,4 +1,5 @@
 name: Install WordPress with core for building plugins
+description: 'Install WordPress with core for building plugins'
 
 inputs:
   PHP_VERSION:

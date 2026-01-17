@@ -1,16 +1,20 @@
-name: Deploy to server using SSH - Plugin project with Self hosted runner
+name: Deploy to server
+
+permissions:
+  id-token: write
+  contents: read
 
 on:
   workflow_dispatch:
     inputs:
       ENVIRONMENT:
         type: choice
-        description: "The environment to deploy to."
-        options:
-          - production
-          - staging
+        description: "Target Environment"
         required: true
         default: "staging"
+        options:
+          - staging
+          - production
   push:
     branches:
       - staging
@@ -20,13 +24,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build WordPress and deploy to server
+  context:
+    name: Setup context - ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
-    strategy:
-      fail-fast: false
+    outputs:
+      environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
+    steps:
+      - id: get
+        run: |
+          echo "environment=${{ inputs.ENVIRONMENT }}" >> "$GITHUB_OUTPUT"
 
+  build-and-push:
+    name: Build and push
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context]
     steps:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
@@ -46,7 +59,7 @@ jobs:
           wp config set LOGGED_IN_SALT '${{ secrets.LOGGED_IN_SALT }}'
           wp config set NONCE_SALT '${{ secrets.NONCE_SALT }}'
           wp config set WP_CACHE_KEY_SALT '${{ secrets.WP_CACHE_KEY_SALT }}'
-          wp config set WP_ENVIRONMENT_TYPE '${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}'
+          wp config set WP_ENVIRONMENT_TYPE '${{ needs.context.outputs.environment }}'
 
       - name: Set special constants
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/special-constants@main
@@ -106,13 +119,11 @@ jobs:
     runs-on:
       [
         self-hosted,
-        "${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}",
+        "${{ needs.context.outputs.environment }}",
       ]
-    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
-    needs: build
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, build-and-push]
     cancel-timeout-minutes: 5
-    strategy:
-      fail-fast: false
     steps:
       - name: Deploy to server
         uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy-self-hosted-runner@main
@@ -125,14 +136,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-    name: Notify after finishing the deployment
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
-    needs: deploy
-    strategy:
-      fail-fast: false
-    steps:
-      - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
-        with:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      name: Notify
+      runs-on: ubuntu-latest
+      environment: ${{ needs.context.outputs.environment }}
+      needs: [context, build-and-push, deploy]
+      steps:
+        - name: Notify
+          uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+          with:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+

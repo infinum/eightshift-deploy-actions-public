@@ -1,4 +1,5 @@
 name: Set correct folder/file permissions
+description: 'Set correct folder/file permissions'
 
 inputs:
   PROJECT_PATH:
