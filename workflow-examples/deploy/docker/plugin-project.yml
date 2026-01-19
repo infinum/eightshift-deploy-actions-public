@@ -1,4 +1,4 @@
-name: Deploy to server using Docker - Plugin project
+name: Deploy to server
 
 permissions:
   id-token: write
@@ -9,12 +9,15 @@ on:
     inputs:
       ENVIRONMENT:
         type: choice
-        description: "The environment to deploy to."
-        options:
-          - production
-          - staging
+        description: "Target Environment"
         required: true
         default: "staging"
+        options:
+          - staging
+          - production
+  push:
+    branches:
+      - staging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,10 +25,9 @@ concurrency:
 
 jobs:
   context:
-    name: Setup context
+    name: Setup context - ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     outputs:
       aws_region: ${{ steps.get.outputs.aws_region }}
       aws_ecr_uri: ${{ steps.get.outputs.aws_ecr_uri }}
@@ -33,7 +35,8 @@ jobs:
       aws_ecr_account_id: ${{ steps.get.outputs.aws_ecr_account_id }}
       aws_ecs_cluster: ${{ steps.get.outputs.aws_ecs_cluster }}
       aws_ecs_deploy_role: ${{ steps.get.outputs.aws_ecs_deploy_role }}
-      git_revision: ${{ github.event.workflow_run.head_sha || github.sha }}
+      git_revision: ${{ github.sha }}
+      environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     steps:
       - id: get
         run: |
@@ -43,13 +46,13 @@ jobs:
           echo "aws_ecr_account_id=${{ vars.AWS_ECR_ACCOUNT_ID }}" >> "$GITHUB_OUTPUT"
           echo "aws_ecs_cluster=${{ vars.AWS_ECS_CLUSTER }}" >> "$GITHUB_OUTPUT"
           echo "aws_ecs_deploy_role=${{ vars.AWS_DEPLOY_ROLE }}" >> "$GITHUB_OUTPUT"
+          echo "environment=${{ inputs.ENVIRONMENT }}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
-    name: Install WordPress Docker image and deploy
+    name: Build and push
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
-    needs: context
-
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context]
     steps:
       - name: Checkout the project repo
         uses: actions/checkout@v4
@@ -90,24 +93,25 @@ jobs:
           AWS_ECR_REGION: ${{ needs.context.outputs.aws_ecr_region }}
 
   deploy:
+    name: Deploy
     needs: [context, build-and-push]
-    name: Deploy WordPress
     uses: infinum/devops-pipelines/.github/workflows/deploy-ecs-task-definition.yml@v3.0.0
     with:
       git_ref: ${{ github.ref }}
       image_uri: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
-      environment: ${{ inputs.ENVIRONMENT }}
+      environment: ${{ needs.context.outputs.environment }}
       aws_region: ${{ needs.context.outputs.aws_region }}
       ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
       ecs_service: <ecs_service>
-      task_def_path: ".aws/ecs/task-definition-app-${{ inputs.ENVIRONMENT }}.json"
+      task_def_path: ".aws/ecs/task-definition-app-${{ needs.context.outputs.environment }}.json"
       container_name: <container_name>
       aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
 
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    needs: [context, deploy]
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, build-and-push, deploy]
     steps:
       - name: Notify
         uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main

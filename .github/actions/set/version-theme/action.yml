@@ -1,4 +1,5 @@
 name: Set theme version number
+description: 'Set theme version number'
 
 inputs:
   PROJECT_PATH:

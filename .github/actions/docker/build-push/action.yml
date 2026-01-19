@@ -1,4 +1,5 @@
 name: Docker build and push
+description: 'Docker build and push'
 
 inputs:
   CLOUD:

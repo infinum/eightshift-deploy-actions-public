@@ -1,4 +1,5 @@
 name: Get and install eightshift plugins
+description: 'Get and install eightshift plugins'
 
 inputs:
   WORDPRESS_GH_ACTIONS:

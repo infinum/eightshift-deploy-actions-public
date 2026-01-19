@@ -1,4 +1,5 @@
 name: Deploy to server using self hosted runner and artifact download and symlink
+description: 'Deploy to server using self hosted runner and artifact download and symlink'
 
 inputs:
   SERVER_SSH_KEY:

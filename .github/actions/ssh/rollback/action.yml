@@ -1,4 +1,5 @@
 name: Rollback deployment to the previous version
+description: 'Rollback deployment to the previous version'
 
 inputs:
   ROLLBACK_NUMBER:

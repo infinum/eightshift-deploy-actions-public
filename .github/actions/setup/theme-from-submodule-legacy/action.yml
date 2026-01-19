@@ -1,4 +1,5 @@
 name: Install theme/plugin from submodule
+description: 'Install theme/plugin from submodule'
 
 inputs:
   NODE_VERSION:

@@ -1,4 +1,5 @@
 name: Get and install all plugins
+description: 'Get and install all plugins'
 
 inputs:
   WORDPRESS_GH_ACTIONS:

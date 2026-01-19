@@ -1,4 +1,5 @@
 name: Get and install core plugins
+description: 'Get and install core plugins'
 
 inputs:
   WORDPRESS_GH_ACTIONS:

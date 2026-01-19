@@ -7,36 +7,54 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      environment:
+      ENVIRONMENT:
+        type: choice
         description: "Target Environment"
         required: true
         default: "staging"
-        type: choice
         options:
           - staging
           - production
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   context:
-    name: Setup context
+    name: Setup context - ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     outputs:
       aws_region: ${{ steps.get.outputs.aws_region }}
       aws_ecs_cluster: ${{ steps.get.outputs.aws_ecs_cluster }}
       aws_ecs_deploy_role: ${{ steps.get.outputs.aws_deploy_role }}
+      environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     steps:
       - id: get
         run: |
           echo "aws_region=${{ vars.AWS_REGION }}" >> "$GITHUB_OUTPUT"
           echo "aws_ecs_cluster=${{ vars.AWS_ECS_CLUSTER }}" >> "$GITHUB_OUTPUT"
           echo "aws_deploy_role=${{ vars.AWS_DEPLOY_ROLE }}" >> "$GITHUB_OUTPUT"
+          echo "environment=${{ inputs.ENVIRONMENT }}" >> "$GITHUB_OUTPUT"
+
   rollback:
-    name: Rollback Backend
-    needs: context
+    name: Rollback
+    needs: [context]
     uses: infinum/devops-pipelines/.github/workflows/rollback-ecs-service.yml@feature/add-ecs-rollback-workflow
     with:
       aws_region: ${{ needs.context.outputs.aws_region }}
       aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
       ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
       ecs_service: <ecs_service>
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, rollback]
+    steps:
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

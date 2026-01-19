@@ -1,4 +1,5 @@
 name: Lint assets - JS, CSS
+description: 'Lint assets - JS, CSS'
 
 inputs:
   NODE_VERSION:
@@ -13,11 +14,16 @@ inputs:
     type: string
     description: "If true, bun is used instead of npm for running scripts"
     default: false
+  USE_CHECKOUT:
+    type: string
+    description: "If true, checkout is used to install dependencies"
+    default: true
 
 runs:
   using: composite
   steps:
     - name: Checkout
+      if: inputs.USE_CHECKOUT == 'true'
       uses: actions/checkout@v4
 
     - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
