@@ -112,8 +112,8 @@ if (!defined('WP_POST_REVISIONS')) {
 }
 
 // Cron job is used from the AWS.
-define('DISABLE_WP_CRON', false);
-define('ALTERNATE_WP_CRON', true);
+define('DISABLE_WP_CRON', true);
+define('ALTERNATE_WP_CRON', false);
 
 # MySQL.
 define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);
