@@ -1,0 +1,56 @@
+name: Register WP-Cron TD (no service)
+description: "Register WP-Cron TD (no service)"
+
+inputs:
+  AWS_REGION:
+    type: string
+    description: "AWS region"
+    required: true
+  AWS_ECS_DEPLOY_ROLE:
+    type: string
+    description: "AWS ECS deploy role"
+    required: true
+  CONTAINER_NAME:
+    type: string
+    description: "Container name"
+    required: true
+  AWS_ECR_URI:
+    type: string
+    description: "AWS ECR URI"
+    required: true
+  GITHUB_SHA:
+    type: string
+    description: "GitHub SHA"
+    required: true
+  TASK_DEFINITION_PATH:
+    type: string
+    description: "Task definition path"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v5
+      with:
+        ref: ${{ github.ref }}
+
+    - uses: aws-actions/configure-aws-credentials@v5
+      with:
+        aws-region: ${{ inputs.AWS_REGION }}
+        role-to-assume: ${{ inputs.AWS_ECS_DEPLOY_ROLE }}
+
+    - id: render
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ inputs.TASK_DEFINITION_PATH }}
+        container-name: ${{ inputs.CONTAINER_NAME }}
+        image: ${{ inputs.AWS_ECR_URI }}:${{ inputs.GITHUB_SHA }}
+
+    - id: register
+      shell: bash
+      run: |
+        ARN=$(aws ecs register-task-definition \
+          --cli-input-json file://${{ steps.render.outputs.task-definition }} \
+          --query 'taskDefinition.taskDefinitionArn' --output text)
+        echo "arn=$ARN" >> $GITHUB_OUTPUT
+        echo "Registered $ARN"
