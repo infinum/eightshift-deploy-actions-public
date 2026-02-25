@@ -21,6 +21,8 @@ inputs:
     type: string
     description: 'GitHub repository for private plugins'
     default: 'eightshift-private-plugins'
+  PLUGINS_EIGHTSHIFT_GITHUB_ACTIONS:
+    description: 'GitHub PAT token for the Eightshift repository'
   PLUGINS_EIGHTSHIFT_GITHUB_USER:
     type: string
     description: 'GitHub repository for Eightshift plugins'
@@ -46,7 +48,7 @@ runs:
     - name: Install plugins eightshift
       uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install-eightshift@main
       with:
-        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_ACTIONS || inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: ${{ inputs.SETUP_FILE }}
         OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
         GITHUB_USER: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_USER }}
