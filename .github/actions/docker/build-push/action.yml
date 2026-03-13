@@ -4,7 +4,7 @@ description: "Docker build and push"
 inputs:
   CLOUD:
     type: string
-    description: "aws, azure or github container registry?"
+    description: "aws, azure, github or gitlab container registry?"
     required: true
   TAGS:
     type: string
@@ -66,7 +66,7 @@ inputs:
     required: false
   IMAGE_REGISTRY_URL:
     type: string
-    description: Image registry URL
+    description: Image registry URL or full image path for GitLab
     required: true
   ACR_USERNAME:
     type: string
@@ -79,6 +79,14 @@ inputs:
   GITHUB_TOKEN:
     type: string
     description: GitHub token for authentication
+    required: false
+  GITLAB_USERNAME:
+    type: string
+    description: GitLab registry username
+    required: false
+  GITLAB_PASSWORD:
+    type: string
+    description: GitLab registry password
     required: false
   AWS_ACCESS_KEY_ID:
     type: string
@@ -111,6 +119,25 @@ runs:
         registry: ${{ inputs.IMAGE_REGISTRY_URL }}
         username: ${{ github.actor }}
         password: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+
+    - name: Resolve GitLab registry host
+      if: ${{ inputs.CLOUD == 'gitlab' }}
+      id: gitlab-registry
+      shell: bash
+      run: |
+        registry="${{ inputs.IMAGE_REGISTRY_URL }}"
+        registry="${registry#http://}"
+        registry="${registry#https://}"
+        registry="${registry%%/*}"
+        echo "registry=${registry}" >> "$GITHUB_OUTPUT"
+
+    - name: GitLab authentication
+      if: ${{ inputs.CLOUD == 'gitlab' }}
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ steps.gitlab-registry.outputs.registry }}
+        username: ${{ inputs.GITLAB_USERNAME }}
+        password: ${{ inputs.GITLAB_PASSWORD }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
