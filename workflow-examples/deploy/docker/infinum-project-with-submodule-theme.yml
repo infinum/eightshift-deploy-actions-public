@@ -75,9 +75,19 @@ jobs:
           USE_BUN: true
 
       - name: Update version number
+        id: update-version
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
+
+      - name: Upload sourcemaps to Bugsnag
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/bugsnag-sourcemaps@main
+        with:
+          API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          APP_VERSION: ${{ steps.update-version.outputs.version }}
+          ENVIRONMENT: ${{ needs.context.outputs.environment }}
+          SOURCE_MAPS_PATH: wp-content/themes/<theme_name>/public
+          PUBLIC_PATH: wp-content/themes/<theme_name>/public
 
       - name: Post install cleanup - root
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
@@ -115,20 +125,6 @@ jobs:
       task_def_path: ".aws/ecs/task-definition-app-${{ needs.context.outputs.environment }}.json"
       container_name: <container_name>
       aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
-
-  deploy-cron-td:
-    name: Register WP-Cron TD (no service)
-    needs: [context, build-and-push]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: infinum/eightshift-deploy-actions-public/.github/actions/docker/cron@main
-        with:
-          AWS_REGION: ${{ needs.context.outputs.aws_region }}
-          AWS_ECS_DEPLOY_ROLE: ${{ needs.context.outputs.aws_ecs_deploy_role }}
-          CONTAINER_NAME: <container_name>-cron
-          AWS_ECR_URI: ${{ needs.context.outputs.aws_ecr_uri }}
-          GITHUB_SHA: ${{ github.sha }}
-          TASK_DEFINITION_PATH: ".aws/ecs/task-definition-app-${{ needs.context.outputs.environment }}-cron.json"
 
   notify:
     name: Notify
