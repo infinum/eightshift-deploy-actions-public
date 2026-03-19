@@ -77,8 +77,9 @@ jobs:
           API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           APP_VERSION: ${{ steps.update-version.outputs.version }}
           ENVIRONMENT: ${{ needs.context.outputs.environment }}
-          SOURCE_MAPS_PATH: wp-content/plugins/<plugin_name>/public
-          PUBLIC_PATH: wp-content/plugins/<plugin_name>/public
+          PATHS: |
+            wp-content/themes/<theme_name>/public
+            wp-content/plugins/<plugin_name>/public
 
       - name: Post install cleanup - root
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
