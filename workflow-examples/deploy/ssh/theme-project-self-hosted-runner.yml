@@ -110,7 +110,7 @@ jobs:
         run: zip -rq release.zip .
 
       - name: Upload release to artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         id: artifact-upload-step
         with:
           path: release.zip
