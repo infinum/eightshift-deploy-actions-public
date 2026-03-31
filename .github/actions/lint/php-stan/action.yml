@@ -16,7 +16,7 @@ runs:
   using: composite
   steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: PHP setup
       uses: shivammathur/setup-php@v2
@@ -25,7 +25,7 @@ runs:
         coverage: none
 
     - name: Install dependencies
-      uses: "ramsey/composer-install@v3"
+      uses: "ramsey/composer-install@4.0.0"
       with:
         working-directory: ${{ inputs.PROJECT_PATH }}
 
