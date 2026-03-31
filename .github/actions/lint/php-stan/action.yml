@@ -4,8 +4,9 @@ description: 'PHP Static code analysis'
 inputs:
   PHP_VERSION:
     type: string
-    description: 'PHP version to use. Available options are 8.2, 8.3, etc.'
-    required: true
+    description: 'PHP version to use. Available options are 8.2, 8.3, 8.4, etc.'
+    required: false
+    default: "8.4"
   PROJECT_PATH:
     type: string
     description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'

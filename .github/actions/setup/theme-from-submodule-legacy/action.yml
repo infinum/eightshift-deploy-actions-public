@@ -25,7 +25,12 @@ inputs:
   USE_BUN:
     type: string
     description: "If true, bun is used instead of npm for running scripts"
-    default: false
+    default: "false"
+  PHP_VERSION:
+    type: string
+    description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
+    required: false
+    default: "8.4"
 
 runs:
   using: composite
@@ -58,6 +63,13 @@ runs:
       with:
         bun-version: latest
 
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+        tools: composer:v2
+
     - name: Install dependencies
       uses: "ramsey/composer-install@v3"
       with:
@@ -69,7 +81,7 @@ runs:
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: |
-        npm ci --no-progress --no-dev --no-audit --ignore-scripts
+        npm ci --no-progress --omit=dev --no-audit --ignore-scripts
         npm run build
 
     - name: Install assets packages with bun

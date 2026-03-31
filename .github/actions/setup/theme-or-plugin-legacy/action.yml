@@ -13,11 +13,16 @@ inputs:
   USE_NODE:
     type: string
     description: "Set to default if you don't have node_modules folder in your project."
-    default: true
+    default: "true"
   USE_BUN:
     type: string
     description: "If true, bun is used instead of npm for running scripts"
-    default: false
+    default: "false"
+  PHP_VERSION:
+    type: string
+    description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
+    required: false
+    default: "8.4"
 
 runs:
   using: composite
@@ -43,6 +48,13 @@ runs:
       with:
         bun-version: latest
 
+    - name: PHP setup
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.PHP_VERSION }}
+        coverage: none
+        tools: composer:v2
+
     - name: Install dependencies
       uses: "ramsey/composer-install@v3"
       with:
@@ -54,7 +66,7 @@ runs:
       if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'false'
       shell: bash
       run: |
-        npm ci --no-progress --no-dev --no-audit --ignore-scripts
+        npm ci --no-progress --omit=dev --no-audit --ignore-scripts
         npm run build
 
     - name: Install assets packages with bun

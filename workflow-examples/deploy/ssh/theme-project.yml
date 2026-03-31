@@ -44,7 +44,7 @@ jobs:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PHP_VERSION: "8.3"
+          PHP_VERSION: "8.4"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables

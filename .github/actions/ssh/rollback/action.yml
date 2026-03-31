@@ -11,15 +11,19 @@ inputs:
     description: 'Server SSH key'
     required: true
   SERVER_USER:
+    type: string
     description: 'Server used for deployment'
     required: true
   SERVER_HOST:
+    type: string
     description: 'Server host for deployment'
     required: true
   SERVER_ROOT:
+    type: string
     description: 'Server root directory for deployment'
     required: true
   SERVER_PORT:
+    type: string
     description: 'Server port for deployment'
     required: true
   RELEASES_FOLDER:
@@ -27,12 +31,15 @@ inputs:
     description: 'Releases folder name'
     default: 'releases'
   SSM_DEPLOY:
+    type: string
     description: 'Use AWS SSM tunnel for deployment'
     default: 'false'
   AWS_REGION:
+    type: string
     description: 'AWS region for SSM tunnel'
     default: ""
   AWS_ROLE:
+    type: string
     description: 'AWS role for SSM tunnel'
     default: ""
 
