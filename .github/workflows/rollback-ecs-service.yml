@@ -1,0 +1,143 @@
+name: Rollback ECS service
+
+on:
+  workflow_call:
+    inputs:
+      AWS_REGION:
+        description: "AWS region where ECS cluster is deployed"
+        required: true
+        type: string
+      AWS_ROLE_TO_ASSUME:
+        description: "ARN of the AWS IAM role to assume via OIDC"
+        required: true
+        type: string
+      ECS_CLUSTER:
+        description: "Name of the ECS cluster"
+        required: true
+        type: string
+      ECS_SERVICE:
+        description: "Name of the ECS service to roll back"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  rollback:
+    name: Rollback ECS service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ inputs.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ inputs.AWS_REGION }}
+          role-session-name: "github-actions-ecs-rollback"
+
+      - name: Print rollback context
+        env:
+          AWS_REGION: ${{ inputs.AWS_REGION }}
+          ECS_CLUSTER: ${{ inputs.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ inputs.ECS_SERVICE }}
+        run: |
+          echo "STARTING AUTOMATIC ROLLBACK"
+          echo "Region:  $AWS_REGION"
+          echo "Cluster: $ECS_CLUSTER"
+          echo "Service: $ECS_SERVICE"
+
+      - name: Get current task definition
+        id: get-current
+        shell: bash
+        env:
+          CLUSTER: ${{ inputs.ECS_CLUSTER }}
+          SERVICE: ${{ inputs.ECS_SERVICE }}
+          REGION: ${{ inputs.AWS_REGION }}
+        run: |
+          set -e
+
+          CURRENT_ARN=$(aws ecs describe-services \
+            --cluster "$CLUSTER" \
+            --service "$SERVICE" \
+            --region "$REGION" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+
+          if [ "$CURRENT_ARN" == "None" ] || [ -z "$CURRENT_ARN" ]; then
+            echo "Error: Service '$SERVICE' not found in cluster '$CLUSTER' or has no active task definition."
+            exit 1
+          fi
+
+          echo "Currently running task definition: $CURRENT_ARN"
+          echo "current_arn=$CURRENT_ARN" >> "$GITHUB_OUTPUT"
+
+      - name: Determine previous task definition
+        id: get-previous
+        shell: bash
+        env:
+          REGION: ${{ inputs.AWS_REGION }}
+          CURRENT_ARN: ${{ steps.get-current.outputs.current_arn }}
+        run: |
+          set -e
+
+          FAMILY=$(echo "$CURRENT_ARN" | cut -d '/' -f 2 | cut -d ':' -f 1)
+          echo "Detected family: $FAMILY"
+
+          ALL_REVISIONS=$(aws ecs list-task-definitions \
+            --family-prefix "$FAMILY" \
+            --status ACTIVE \
+            --sort DESC \
+            --region "$REGION" \
+            --query 'taskDefinitionArns' \
+            --output text)
+
+          TARGET_ARN=$(echo "$ALL_REVISIONS" | tr '\t' '\n' | grep -F -A 1 "$CURRENT_ARN" | tail -n 1)
+
+          if [[ "$TARGET_ARN" == "$CURRENT_ARN" ]] || [[ -z "$TARGET_ARN" ]]; then
+            echo "Error: No previous revision found. You might be on the oldest one available."
+            exit 1
+          fi
+
+          echo "Previous ACTIVE revision detected: $TARGET_ARN"
+          echo "target_arn=$TARGET_ARN" >> "$GITHUB_OUTPUT"
+
+      - name: Update ECS service to previous revision
+        shell: bash
+        env:
+          CLUSTER: ${{ inputs.ECS_CLUSTER }}
+          SERVICE: ${{ inputs.ECS_SERVICE }}
+          REGION: ${{ inputs.AWS_REGION }}
+          TARGET_ARN: ${{ steps.get-previous.outputs.target_arn }}
+        run: |
+          set -e
+
+          echo "Rolling back service '$SERVICE' on cluster '$CLUSTER' to: $TARGET_ARN"
+
+          aws ecs update-service \
+            --cluster "$CLUSTER" \
+            --service "$SERVICE" \
+            --task-definition "$TARGET_ARN" \
+            --region "$REGION" \
+            --force-new-deployment > /dev/null
+
+      - name: Wait for service stabilization
+        shell: bash
+        env:
+          CLUSTER: ${{ inputs.ECS_CLUSTER }}
+          SERVICE: ${{ inputs.ECS_SERVICE }}
+          REGION: ${{ inputs.AWS_REGION }}
+        run: |
+          set -e
+
+          echo "Waiting for service stabilization..."
+
+          aws ecs wait services-stable \
+            --cluster "$CLUSTER" \
+            --service "$SERVICE" \
+            --region "$REGION"
+
+          echo "Rollback successful!"

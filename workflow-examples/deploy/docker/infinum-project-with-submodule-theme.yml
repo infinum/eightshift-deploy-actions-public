@@ -120,17 +120,17 @@ jobs:
   deploy:
     name: Deploy
     needs: [context, build-and-push]
-    uses: infinum/devops-pipelines/.github/workflows/deploy-ecs-task-definition.yml@v3.0.0
+    uses: infinum/eightshift-deploy-actions-public/.github/workflows/deploy-ecs-task-definition.yml@main
     with:
-      git_ref: ${{ github.ref }}
-      image_uri: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
-      environment: ${{ needs.context.outputs.environment }}
-      aws_region: ${{ needs.context.outputs.aws_region }}
-      ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
-      ecs_service: <ecs_service>
-      task_def_path: ".aws/ecs/task-definition-app-${{ needs.context.outputs.environment }}.json"
-      container_name: <container_name>
-      aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
+      GIT_REF: ${{ github.ref }}
+      IMAGE_URI: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
+      ENVIRONMENT: ${{ needs.context.outputs.environment }}
+      AWS_REGION: ${{ needs.context.outputs.aws_region }}
+      ECS_CLUSTER: ${{ needs.context.outputs.aws_ecs_cluster }}
+      ECS_SERVICE: <ecs_service>
+      TASK_DEF_PATH: ".aws/ecs/task-definition-app-${{ needs.context.outputs.environment }}.json"
+      CONTAINER_NAME: <container_name>
+      AWS_ROLE_TO_ASSUME: ${{ needs.context.outputs.aws_ecs_deploy_role }}
 
   notify:
     name: Notify
