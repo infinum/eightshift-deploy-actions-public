@@ -33,14 +33,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     outputs:
-      AWS_REGION: ${{ steps.get.outputs.aws_region }}
+      aws_region: ${{ steps.get.outputs.aws_region }}
       aws_ecr_uri: ${{ steps.get.outputs.aws_ecr_uri }}
       aws_ecr_region: ${{ steps.get.outputs.aws_ecr_region }}
       aws_ecr_account_id: ${{ steps.get.outputs.aws_ecr_account_id }}
       aws_ecs_cluster: ${{ steps.get.outputs.aws_ecs_cluster }}
       aws_ecs_deploy_role: ${{ steps.get.outputs.aws_ecs_deploy_role }}
       git_revision: ${{ github.sha }}
-      ENVIRONMENT: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
+      environment: ${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}
     steps:
       - id: get
         run: |
