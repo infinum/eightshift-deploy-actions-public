@@ -15,6 +15,10 @@ on:
         options:
           - staging
           - production
+      SKIP_SOURCEMAPS:
+        type: boolean
+        description: "Skip sourcemaps upload to Bugsnag"
+        default: false
   push:
     branches:
       - staging
@@ -72,6 +76,7 @@ jobs:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
       - name: Upload sourcemaps to Bugsnag
+        if: ${{ needs.context.outputs.environment == 'production' && inputs.SKIP_SOURCEMAPS != true }}
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/bugsnag-sourcemaps@main
         with:
           API_KEY: ${{ secrets.BUGSNAG_API_KEY }}

@@ -6,12 +6,16 @@ WORKDIR /usr/src/wordpress
 RUN rm -rf /usr/src/wordpress/wp-content
 
 # Configure Nginx
-RUN apt-get update && apt-get upgrade -y && apt-get install -y nginx cron && apt-get clean
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends nginx cron \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --chown=www-data:www-data ./config/nginx.conf /etc/nginx/nginx.conf
 
 # Configure wp-cli and wp-cron
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.sha512 \
+    && sha512sum -c wp-cli.phar.sha512 \
+    && chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp \
+    && rm wp-cli.phar.sha512
 COPY ./config/wp-cron /etc/cron.d/wp-cron
 RUN crontab /etc/cron.d/wp-cron
 
