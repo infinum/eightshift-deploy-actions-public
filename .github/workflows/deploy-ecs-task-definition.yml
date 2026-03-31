@@ -3,44 +3,44 @@ name: Deploy to ECS service
 on:
   workflow_call:
     inputs:
-      image_uri:
+      IMAGE_URI:
         description: "Docker image URI to deploy (eg. 123456789.dkr.ecr.eu-west-1.amazonaws.com/my-app:abc1234)"
         required: true
         type: string
-      environment:
+      ENVIRONMENT:
         description: "GitHub Actions environment (eg. staging or production)"
         required: true
         type: string
-      git_ref:
+      GIT_REF:
         description: "Commit hash or branch name to checkout"
         required: true
         type: string
-      timeout_minutes:
+      TIMEOUT_MINUTES:
         description: "Job timeout in minutes"
         required: false
         type: number
         default: 30
-      task_def_path:
+      TASK_DEF_PATH:
         description: "Path to the ECS task definition JSON file (eg. .aws/ecs/task-definition-app-staging.json)"
         required: true
         type: string
-      aws_region:
+      AWS_REGION:
         description: "AWS region where ECS cluster is deployed"
         required: true
         type: string
-      container_name:
+      CONTAINER_NAME:
         description: "Name of the container in the task definition to update"
         required: true
         type: string
-      ecs_service:
+      ECS_SERVICE:
         description: "Name of the ECS service to update"
         required: true
         type: string
-      ecs_cluster:
+      ECS_CLUSTER:
         description: "Name of the ECS cluster"
         required: true
         type: string
-      aws_role_to_assume:
+      AWS_ROLE_TO_ASSUME:
         description: "ARN of the AWS IAM role to assume via OIDC"
         required: false
         type: string
@@ -53,34 +53,34 @@ jobs:
   deploy:
     name: Deploy to ECS service
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    timeout-minutes: ${{ inputs.timeout_minutes }}
+    environment: ${{ inputs.ENVIRONMENT }}
+    timeout-minutes: ${{ inputs.TIMEOUT_MINUTES }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.git_ref }}
+          ref: ${{ inputs.GIT_REF }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
-          role-to-assume: ${{ inputs.aws_role_to_assume }}
+          aws-region: ${{ inputs.AWS_REGION }}
+          role-to-assume: ${{ inputs.AWS_ROLE_TO_ASSUME }}
 
       - name: Update image in task definition
         id: render-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1.8.4
         with:
-          task-definition: ${{ inputs.task_def_path }}
-          container-name: ${{ inputs.container_name }}
-          image: ${{ inputs.image_uri }}
+          task-definition: ${{ inputs.TASK_DEF_PATH }}
+          container-name: ${{ inputs.CONTAINER_NAME }}
+          image: ${{ inputs.IMAGE_URI }}
 
       - name: Deploy task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
-          service: ${{ inputs.ecs_service }}
-          cluster: ${{ inputs.ecs_cluster }}
+          service: ${{ inputs.ECS_SERVICE }}
+          cluster: ${{ inputs.ECS_CLUSTER }}
           wait-for-service-stability: true
