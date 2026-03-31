@@ -7,15 +7,19 @@ inputs:
     description: 'Server SSH key'
     required: true
   SERVER_USER:
+    type: string
     description: 'Server used for deployment'
     required: true
   SERVER_HOST:
+    type: string
     description: 'Server host for deployment'
     required: true
   SERVER_ROOT:
+    type: string
     description: 'Server root directory for deployment'
     required: true
   SERVER_PORT:
+    type: string
     description: 'Server port for deployment'
     required: true
   RELEASES_TO_KEEP:

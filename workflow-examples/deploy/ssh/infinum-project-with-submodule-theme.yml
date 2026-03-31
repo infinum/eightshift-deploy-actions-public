@@ -44,7 +44,7 @@ jobs:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PHP_VERSION: "8.3"
+          PHP_VERSION: "8.4"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables
@@ -123,7 +123,7 @@ jobs:
       name: Notify
       runs-on: ubuntu-latest
       environment: ${{ needs.context.outputs.environment }}
-      needs: [context, deploy]
+      needs: [context, build-and-push]
       steps:
         - name: Notify
           uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
