@@ -24,11 +24,11 @@ runs:
   steps:
     - name: Checkout
       if: inputs.USE_CHECKOUT == 'true'
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
       if: inputs.USE_BUN == 'false'
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache: npm
@@ -36,7 +36,7 @@ runs:
 
     - name: Set Node.js version - ${{ inputs.NODE_VERSION }}
       if: inputs.USE_BUN == 'true'
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.NODE_VERSION }}
         cache-dependency-path: ${{ inputs.PROJECT_PATH }}/bun.lock

@@ -28,7 +28,7 @@ runs:
   using: composite
   steps:
     - name: Install Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'false'
       with:
         node-version: ${{ inputs.NODE_VERSION }}
@@ -36,7 +36,7 @@ runs:
         cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
 
     - name: Install Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'true'
       with:
         node-version: ${{ inputs.NODE_VERSION }}
@@ -56,7 +56,7 @@ runs:
         tools: composer:v2
 
     - name: Install dependencies
-      uses: "ramsey/composer-install@v3"
+      uses: "ramsey/composer-install@4.0.0"
       with:
         composer-options: "--no-dev"
         working-directory: ${{ inputs.PROJECT_PATH }}

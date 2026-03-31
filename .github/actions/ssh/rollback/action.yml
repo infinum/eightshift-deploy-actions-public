@@ -48,7 +48,7 @@ runs:
   steps:
     - name: Configure AWS Credentials
       if: ${{ inputs.SSM_DEPLOY == 'true' }}
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         role-to-assume: ${{ inputs.AWS_ROLE }}
         aws-region: ${{ inputs.AWS_REGION }}
@@ -68,7 +68,7 @@ runs:
         EOF
 
     - name: Add server SSH key
-      uses: webfactory/ssh-agent@v0.9.0
+      uses: webfactory/ssh-agent@v0.10.0
       with:
         ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
 
