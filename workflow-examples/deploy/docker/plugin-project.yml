@@ -111,7 +111,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [context, build-and-push]
-    uses: infinum/devops-pipelines/.github/workflows/deploy-ecs-task-definition.yml@v3.0.0
+    uses: infinum/eightshift-deploy-actions-public/.github/workflows/deploy-ecs-task-definition.yml@main
     with:
       git_ref: ${{ github.ref }}
       image_uri: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
