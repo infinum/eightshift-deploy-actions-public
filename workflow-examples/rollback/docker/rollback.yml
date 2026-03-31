@@ -41,12 +41,12 @@ jobs:
   rollback:
     name: Rollback
     needs: [context]
-    uses: infinum/devops-pipelines/.github/workflows/rollback-ecs-service.yml@feature/add-ecs-rollback-workflow
+    uses: infinum/eightshift-deploy-actions-public/.github/workflows/rollback-ecs-service.yml@main
     with:
-      aws_region: ${{ needs.context.outputs.aws_region }}
-      aws_role_to_assume: ${{ needs.context.outputs.aws_ecs_deploy_role }}
-      ecs_cluster: ${{ needs.context.outputs.aws_ecs_cluster }}
-      ecs_service: <ecs_service>
+      AWS_REGION: ${{ needs.context.outputs.aws_region }}
+      AWS_ROLE_TO_ASSUME: ${{ needs.context.outputs.aws_ecs_deploy_role }}
+      ECS_CLUSTER: ${{ needs.context.outputs.aws_ecs_cluster }}
+      ECS_SERVICE: <ecs_service>
 
   notify:
     name: Notify
