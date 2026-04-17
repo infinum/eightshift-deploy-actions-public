@@ -43,11 +43,12 @@ runs:
       shell: bash
       run: |
         echo "NOW=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
-      
+
     - name: Download a single artifact
       uses: actions/download-artifact@v8
       with:
         github-token: ${{ inputs.GITHUB_TOKEN }}
+        path: artifact
 
     - name: Add server SSH key
       uses: webfactory/ssh-agent@v0.10.0
