@@ -73,7 +73,6 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
-          USE_BUN: true
 
       - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
@@ -116,11 +115,7 @@ jobs:
 
   deploy:
     name: Deploy to the server
-    runs-on:
-      [
-        self-hosted,
-        "${{ needs.context.outputs.environment }}",
-      ]
+    runs-on: [self-hosted, "${{ needs.context.outputs.environment }}"]
     environment: ${{ needs.context.outputs.environment }}
     needs: [context, build-and-push]
     cancel-timeout-minutes: 5
@@ -136,13 +131,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-      name: Notify
-      runs-on: ubuntu-latest
-      environment: ${{ needs.context.outputs.environment }}
-      needs: [context, build-and-push, deploy]
-      steps:
-        - name: Notify
-          uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
-          with:
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
+    name: Notify
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, build-and-push, deploy]
+    steps:
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

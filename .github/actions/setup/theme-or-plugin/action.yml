@@ -1,5 +1,5 @@
 name: Install theme/plugin
-description: 'Install theme/plugin'
+description: "Install theme/plugin"
 
 inputs:
   NODE_VERSION:
@@ -10,13 +10,9 @@ inputs:
     type: string
     description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
-  USE_NODE:
+  BUILD_SOURCEMAPS:
     type: string
-    description: "Set to default if you don't have node_modules folder in your project."
-    default: "true"
-  USE_BUN:
-    type: string
-    description: "If true, bun is used instead of npm for running scripts"
+    description: "If true, run a second build with sourcemaps enabled (output goes to public-sourcemaps/)"
     default: "false"
   PHP_VERSION:
     type: string
@@ -27,27 +23,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install Node.js
-      uses: actions/setup-node@v6
-      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'false'
-      with:
-        node-version: ${{ inputs.NODE_VERSION }}
-        cache: npm
-        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
-
-    - name: Install Node.js
-      uses: actions/setup-node@v6
-      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'true'
-      with:
-        node-version: ${{ inputs.NODE_VERSION }}
-        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/bun.lock"
-
-    - name: Install Bun
-      if: inputs.USE_BUN == 'true'
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
-
     - name: PHP setup
       uses: shivammathur/setup-php@v2
       with:
@@ -61,18 +36,20 @@ runs:
         composer-options: "--no-dev"
         working-directory: ${{ inputs.PROJECT_PATH }}
 
-    - name: Install assets packages with npm
-      working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'false'
-      shell: bash
-      run: |
-        npm ci --no-progress --omit=dev --no-audit --ignore-scripts
-        npm run build
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
 
     - name: Install assets packages with bun
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_NODE == 'true' && inputs.USE_BUN == 'true'
       shell: bash
       run: |
         bun install --ignore-scripts --frozen-lockfile --production
         bun run build
+
+    - name: Build assets with sourcemaps (bun)
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.BUILD_SOURCEMAPS == 'true'
+      shell: bash
+      run: bun run build:sourcemaps

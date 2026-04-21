@@ -73,7 +73,6 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
-          USE_BUN: true
 
       - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
@@ -117,12 +116,12 @@ jobs:
           AWS_ROLE: ${{ secrets.AWS_ROLE }}
 
   notify:
-      name: Notify
-      runs-on: ubuntu-latest
-      environment: ${{ needs.context.outputs.environment }}
-      needs: [context, build-and-push]
-      steps:
-        - name: Notify
-          uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
-          with:
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    name: Notify
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, build-and-push]
+    steps:
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
