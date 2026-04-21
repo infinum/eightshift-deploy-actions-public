@@ -76,7 +76,6 @@ jobs:
           PROJECT_PATH: wp-content/themes/<theme_name>
           SUBMODULE_PATH: <submodule_path>
           SUBMODULE_PROJECT_PATH: wp-content/themes/<theme_name>
-          USE_BUN: true
 
       - name: Update version number
         id: update-version

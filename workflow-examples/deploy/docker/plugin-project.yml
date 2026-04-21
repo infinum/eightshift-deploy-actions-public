@@ -67,7 +67,6 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
-          USE_BUN: true
 
       - name: Update version number
         id: update-version

@@ -1,31 +1,27 @@
 name: Install theme/plugin from submodule
-description: 'Install theme/plugin from submodule'
+description: "Install theme/plugin from submodule"
 
 inputs:
   NODE_VERSION:
     type: string
-    description: 'Node.js version to use. Available options are 14, 16, latest etc. Default is latest.'
-    default: 'latest'
+    description: "Node.js version to use. Available options are 14, 16, latest etc. Default is latest."
+    default: "latest"
   ROOT_PATH:
     type: string
-    description: 'Path to the root of the repository. Usually $GITHUB_WORKSPACE'
+    description: "Path to the root of the repository. Usually $GITHUB_WORKSPACE"
     required: true
   PROJECT_PATH:
     type: string
-    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
   SUBMODULE_PATH:
     type: string
-    description: 'Path to the root submodule folder from the root of the repository. Usually wordpress-infinum-web-redesign'
+    description: "Path to the root submodule folder from the root of the repository. Usually wordpress-infinum-web-redesign"
     required: true
   SUBMODULE_PROJECT_PATH:
     type: string
-    description: 'Path to the submodule project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    description: "Path to the submodule project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
-  USE_BUN:
-    type: string
-    description: "If true, bun is used instead of npm for running scripts"
-    default: "false"
   PHP_VERSION:
     type: string
     description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
@@ -42,23 +38,7 @@ runs:
         cp -r ${{ inputs.ROOT_PATH }}/${{ inputs.SUBMODULE_PATH }}/${{ inputs.SUBMODULE_PROJECT_PATH }}/. ${{ inputs.ROOT_PATH }}/${{ inputs.PROJECT_PATH }}
         rm -rf ${{ inputs.ROOT_PATH }}/${{ inputs.SUBMODULE_PATH }}
 
-    - name: Install Node.js
-      if: inputs.USE_BUN == 'false'
-      uses: actions/setup-node@v6
-      with:
-        node-version: ${{ inputs.NODE_VERSION }}
-        cache: npm
-        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
-
-    - name: Install Node.js
-      if: inputs.USE_BUN == 'true'
-      uses: actions/setup-node@v6
-      with:
-        node-version: ${{ inputs.NODE_VERSION }}
-        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/bun.lock"
-
     - name: Install Bun
-      if: inputs.USE_BUN == 'true'
       uses: oven-sh/setup-bun@v2
       with:
         bun-version: latest
@@ -76,17 +56,8 @@ runs:
         composer-options: "--no-dev"
         working-directory: ${{ inputs.PROJECT_PATH }}
 
-    - name: Install assets packages with npm
-      if: inputs.USE_BUN == 'false'
-      working-directory: ${{ inputs.PROJECT_PATH }}
-      shell: bash
-      run: |
-        npm ci --no-progress --omit=dev --no-audit --ignore-scripts
-        npm run build
-
     - name: Install assets packages with bun
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
         bun install --ignore-scripts --frozen-lockfile --production

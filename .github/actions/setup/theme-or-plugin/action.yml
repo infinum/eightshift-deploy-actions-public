@@ -10,10 +10,6 @@ inputs:
     type: string
     description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
-  USE_BUN:
-    type: string
-    description: "If true, bun is used instead of npm for running scripts"
-    default: "true"
   BUILD_SOURCEMAPS:
     type: string
     description: "If true, run a second build with sourcemaps enabled (output goes to public-sourcemaps/)"
@@ -41,14 +37,12 @@ runs:
         working-directory: ${{ inputs.PROJECT_PATH }}
 
     - name: Install Bun
-      if: inputs.USE_BUN == 'true'
       uses: oven-sh/setup-bun@v2
       with:
         bun-version: latest
 
     - name: Install assets packages with bun
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
         bun install --ignore-scripts --frozen-lockfile --production
@@ -56,28 +50,6 @@ runs:
 
     - name: Build assets with sourcemaps (bun)
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_BUN == 'true' && inputs.BUILD_SOURCEMAPS == 'true'
+      if: inputs.BUILD_SOURCEMAPS == 'true'
       shell: bash
       run: bun run build:sourcemaps
-
-    - name: Install Node.js
-      uses: actions/setup-node@v6
-      if: inputs.USE_BUN == 'false'
-      with:
-        node-version: ${{ inputs.NODE_VERSION }}
-        cache: npm
-        cache-dependency-path: "${{ inputs.PROJECT_PATH }}/package-lock.json"
-
-    - name: Install assets packages with npm
-      working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_BUN == 'false'
-      shell: bash
-      run: |
-        npm ci --no-progress --omit=dev --no-audit --ignore-scripts
-        npm run build
-
-    - name: Build assets with sourcemaps (npm)
-      working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.USE_BUN == 'false' && inputs.BUILD_SOURCEMAPS == 'true'
-      shell: bash
-      run: npm run build:sourcemaps
