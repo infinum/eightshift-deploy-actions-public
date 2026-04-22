@@ -14,6 +14,14 @@ inputs:
     type: string
     description: "If true, run a second build with sourcemaps enabled (output goes to public-sourcemaps/)"
     default: "false"
+  USE_BUN:
+    type: string
+    description: "If true, use Bun to build assets"
+    default: "true"
+  USE_COMPOSER:
+    type: string
+    description: "If true, use Composer to install dependencies"
+    default: "true"
   PHP_VERSION:
     type: string
     description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
@@ -25,6 +33,7 @@ runs:
   steps:
     - name: PHP setup
       uses: shivammathur/setup-php@v2
+      if: inputs.USE_COMPOSER == 'true'
       with:
         php-version: ${{ inputs.PHP_VERSION }}
         coverage: none
@@ -32,17 +41,20 @@ runs:
 
     - name: Install dependencies
       uses: "ramsey/composer-install@4.0.0"
+      if: inputs.USE_COMPOSER == 'true'
       with:
         composer-options: "--no-dev"
         working-directory: ${{ inputs.PROJECT_PATH }}
 
     - name: Install Bun
       uses: oven-sh/setup-bun@v2
+      if: inputs.USE_BUN == 'true'
       with:
         bun-version: latest
 
     - name: Install assets packages with bun
       working-directory: ${{ inputs.PROJECT_PATH }}
+      if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
         bun install --ignore-scripts --frozen-lockfile --production
@@ -50,6 +62,6 @@ runs:
 
     - name: Build assets with sourcemaps (bun)
       working-directory: ${{ inputs.PROJECT_PATH }}
-      if: inputs.BUILD_SOURCEMAPS == 'true'
+      if: inputs.BUILD_SOURCEMAPS == 'true' && inputs.USE_BUN == 'true'
       shell: bash
       run: bun run build:sourcemaps
