@@ -133,7 +133,7 @@ runs:
 
     - name: GitLab authentication
       if: ${{ inputs.CLOUD == 'gitlab' }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ${{ steps.gitlab-registry.outputs.registry }}
         username: ${{ inputs.GITLAB_USERNAME }}
