@@ -1,19 +1,15 @@
 name: Set env file
-description: "Create or edit an env file from a multi-line list of KEY=VALUE pairs."
+description: "Upsert KEY=VALUE pairs into an env file. Creates the file if missing, updates existing keys, appends new ones."
 
 inputs:
   VARS:
-    type: boolean
-    description: "Multi-line list of KEY=VALUE pairs to write into the env file."
+    type: string
+    description: "Multi-line list of KEY=VALUE pairs to upsert into the env file."
     required: true
   OUTPUT_PATH:
     type: string
     description: "Path (including filename) where the env file is written."
     default: ".env"
-  EDIT:
-    type: boolean
-    description: "If 'true', update values of existing keys in OUTPUT_PATH instead of recreating the file. Fails if any key in VARS is not already present."
-    default: false
 
 runs:
   using: composite
@@ -23,7 +19,6 @@ runs:
       env:
         VARS: ${{ inputs.VARS }}
         OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
-        EDIT: ${{ inputs.EDIT }}
       run: |
         set -euo pipefail
 
@@ -32,47 +27,32 @@ runs:
           exit 1
         fi
 
-        if [ "${EDIT}" = "true" ]; then
-          if [ ! -f "${OUTPUT_PATH}" ]; then
-            echo "::error::EDIT mode requires an existing file at ${OUTPUT_PATH}."
+        mkdir -p "$(dirname "${OUTPUT_PATH}")"
+        [ -f "${OUTPUT_PATH}" ] || : > "${OUTPUT_PATH}"
+
+        while IFS= read -r line || [ -n "${line}" ]; do
+          [ -z "${line//[[:space:]]/}" ] && continue
+          [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+
+          if [[ "${line}" != *"="* ]]; then
+            echo "::error::Invalid line (missing '='): ${line}"
             exit 1
           fi
 
-          while IFS= read -r line || [ -n "${line}" ]; do
-            [ -z "${line//[[:space:]]/}" ] && continue
-            [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+          key="${line%%=*}"
+          value="${line#*=}"
+          key="${key#"${key%%[![:space:]]*}"}"
+          key="${key%"${key##*[![:space:]]}"}"
 
-            if [[ "${line}" != *"="* ]]; then
-              echo "::error::Invalid line (missing '='): ${line}"
-              exit 1
-            fi
-
-            key="${line%%=*}"
-            value="${line#*=}"
-            key="${key#"${key%%[![:space:]]*}"}"
-            key="${key%"${key##*[![:space:]]}"}"
-
-            if ! grep -qE "^[[:space:]]*${key}=" "${OUTPUT_PATH}"; then
-              echo "::error::Key '${key}' not found in ${OUTPUT_PATH}."
-              exit 1
-            fi
-
+          if grep -qE "^[[:space:]]*${key}=" "${OUTPUT_PATH}"; then
             awk -v key="${key}" -v val="${value}" '
               !replaced && $0 ~ "^[[:space:]]*" key "=" { print key "=" val; replaced=1; next }
               { print }
             ' "${OUTPUT_PATH}" > "${OUTPUT_PATH}.tmp"
             mv "${OUTPUT_PATH}.tmp" "${OUTPUT_PATH}"
-
             echo "Updated ${key} in ${OUTPUT_PATH}"
-          done <<< "${VARS}"
-        else
-          mkdir -p "$(dirname "${OUTPUT_PATH}")"
-          : > "${OUTPUT_PATH}"
-
-          while IFS= read -r line || [ -n "${line}" ]; do
-            [ -z "${line//[[:space:]]/}" ] && continue
-            printf '%s\n' "${line}" >> "${OUTPUT_PATH}"
-          done <<< "${VARS}"
-
-          echo "Wrote env file to ${OUTPUT_PATH}"
-        fi
+          else
+            printf '%s=%s\n' "${key}" "${value}" >> "${OUTPUT_PATH}"
+            echo "Added ${key} to ${OUTPUT_PATH}"
+          fi
+        done <<< "${VARS}"
