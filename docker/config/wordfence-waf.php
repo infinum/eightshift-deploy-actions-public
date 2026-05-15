@@ -2,7 +2,7 @@
 // Before removing this file, please verify the PHP ini setting `auto_prepend_file` does not point to this.
 
 # Bypass Wordfence for the healthcheck endpoint
-if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/wp-json/eightshift-utils/v1/knock-knock') === 0) {
+if (isset($_SERVER['REQUEST_URI']) && str_starts_with($_SERVER['REQUEST_URI'], '/wp-json/eightshift-utils/v1/knock-knock')) {
 	return true;
 }
 

@@ -7,15 +7,19 @@ inputs:
     description: 'Server SSH key'
     required: true
   SERVER_USER:
+    type: string
     description: 'Server used for deployment'
     required: true
   SERVER_HOST:
+    type: string
     description: 'Server host for deployment'
     required: true
   SERVER_ROOT:
+    type: string
     description: 'Server root directory for deployment'
     required: true
   SERVER_PORT:
+    type: string
     description: 'Server port for deployment'
     required: true
   RELEASES_TO_KEEP:
@@ -39,14 +43,15 @@ runs:
       shell: bash
       run: |
         echo "NOW=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
-      
+
     - name: Download a single artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         github-token: ${{ inputs.GITHUB_TOKEN }}
+        path: artifact
 
     - name: Add server SSH key
-      uses: webfactory/ssh-agent@v0.9.0
+      uses: webfactory/ssh-agent@v0.10.0
       with:
         ssh-private-key: ${{ inputs.SERVER_SSH_KEY }}
 

@@ -11,11 +11,8 @@ inputs:
   ENVIRONMENT:
     description: "Target environment (staging, production, qa)"
     required: true
-  SOURCE_MAPS_PATH:
-    description: "Path to the directory containing .js.map files"
-    required: true
-  PUBLIC_PATH:
-    description: "Public path appended to the base URL (e.g. wp-content/themes/redesign/public)"
+  PATHS:
+    description: "Newline-separated list of paths to directories containing .js.map files (used for both file lookup and public URL)"
     required: true
   SETUP_JSON_PATH:
     description: "Path to setup.json relative to the repo root"
@@ -31,8 +28,7 @@ runs:
         BUGSNAG_API_KEY: ${{ inputs.API_KEY }}
         APP_VERSION: ${{ inputs.APP_VERSION }}
         ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
-        SOURCE_MAPS_PATH: ${{ inputs.SOURCE_MAPS_PATH }}
-        PUBLIC_PATH: ${{ inputs.PUBLIC_PATH }}
+        PATHS: ${{ inputs.PATHS }}
         SETUP_JSON_PATH: ${{ inputs.SETUP_JSON_PATH }}
       run: |
         APP_URL=$(jq -r --arg env "$ENVIRONMENT" '.urls[$env] // empty' "$SETUP_JSON_PATH")
@@ -40,14 +36,19 @@ runs:
           echo "No URL configured for '$ENVIRONMENT' in $SETUP_JSON_PATH, skipping."
           exit 0
         fi
-        BASE_URL="$APP_URL/$PUBLIC_PATH"
-        for map in "$SOURCE_MAPS_PATH"/*.js.map; do
-          bundle="${map%.map}"
-          filename=$(basename "$bundle")
-          npx --yes @bugsnag/source-maps@^2.3.0 upload-browser \
-            --api-key "$BUGSNAG_API_KEY" \
-            --app-version "$APP_VERSION" \
-            --source-map "$map" \
-            --bundle "$bundle" \
-            --bundle-url "$BASE_URL/$filename"
-        done
+        while IFS= read -r path; do
+          path=$(echo "$path" | xargs)
+          [ -z "$path" ] && continue
+          BASE_URL="$APP_URL/$path"
+          for map in "$path"/*.js.map; do
+            [ -f "$map" ] || continue
+            bundle="${map%.map}"
+            filename=$(basename "$bundle")
+            npx --yes @bugsnag/source-maps@^2.3.0 upload-browser \
+              --api-key "$BUGSNAG_API_KEY" \
+              --app-version "$APP_VERSION" \
+              --source-map "$map" \
+              --bundle "$bundle" \
+              --bundle-url "$BASE_URL/$filename"
+          done
+        done <<< "$PATHS"

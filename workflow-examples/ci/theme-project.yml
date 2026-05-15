@@ -22,7 +22,6 @@ jobs:
         with:
           NODE_VERSION: ${{ matrix.node }}
           PROJECT_PATH: wp-content/themes/<theme_name>
-          USE_BUN: true
 
   phpstan:
     name: PHP static code analysis using PHP - ${{ matrix.php }}

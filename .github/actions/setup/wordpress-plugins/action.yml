@@ -4,8 +4,9 @@ description: 'Install WordPress with core for building plugins'
 inputs:
   PHP_VERSION:
     type: string
-    description: "PHP version to use. Available options are 7.4, 8.0, etc."
-    required: true
+    description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
+    required: false
+    default: "8.4"
   WORDPRESS_GH_ACTIONS:
     type: string
     description: "GitHub PAT token for the WordPress repository deployment"

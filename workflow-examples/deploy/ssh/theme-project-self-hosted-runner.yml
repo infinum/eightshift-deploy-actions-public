@@ -45,7 +45,7 @@ jobs:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PHP_VERSION: "8.3"
+          PHP_VERSION: "8.4"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables
@@ -74,7 +74,6 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
-          USE_BUN: true
 
       - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
@@ -110,18 +109,14 @@ jobs:
         run: zip -rq release.zip .
 
       - name: Upload release to artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         id: artifact-upload-step
         with:
           path: release.zip
 
   deploy:
     name: Deploy to the server
-    runs-on:
-      [
-        self-hosted,
-        "${{ needs.context.outputs.environment }}",
-      ]
+    runs-on: [self-hosted, "${{ needs.context.outputs.environment }}"]
     environment: ${{ needs.context.outputs.environment }}
     needs: [context, build-and-push]
     cancel-timeout-minutes: 5
@@ -137,12 +132,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-      name: Notify
-      runs-on: ubuntu-latest
-      environment: ${{ needs.context.outputs.environment }}
-      needs: [context, build-and-push, deploy]
-      steps:
-        - name: Notify
-          uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
-          with:
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    name: Notify
+    runs-on: ubuntu-latest
+    environment: ${{ needs.context.outputs.environment }}
+    needs: [context, build-and-push, deploy]
+    steps:
+      - name: Notify
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        with:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
