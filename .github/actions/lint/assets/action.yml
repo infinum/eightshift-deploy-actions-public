@@ -14,6 +14,18 @@ inputs:
     type: string
     description: "If true, checkout is used to install dependencies"
     default: true
+  USE_BUILD:
+    type: string
+    description: "If true, build command is used"
+    default: true
+  USE_LINT_JS:
+    type: string
+    description: "If true, lint JS command is used"
+    default: true
+  USE_LINT_STYLE:
+    type: string
+    description: "If true, lint style command is used"
+    default: true
 
 runs:
   using: composite
@@ -32,14 +44,22 @@ runs:
       shell: bash
       run: |
         bun install --ignore-scripts --frozen-lockfile
+
+    - name: Build assets with bun
+      if: inputs.USE_BUILD == 'true'
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: |
         bun run build
 
     - name: Run linter - JS with bun
+      if: inputs.USE_LINT_JS == 'true'
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: bun run lintJs
 
     - name: Run linters - CSS with bun
+      if: inputs.USE_LINT_STYLE == 'true'
       working-directory: ${{ inputs.PROJECT_PATH }}
       shell: bash
       run: bun run lintStyle
