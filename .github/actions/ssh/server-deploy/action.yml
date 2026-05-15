@@ -1,46 +1,50 @@
 name: Deploy to server using rsync and symlink
-description: 'Deploy to server using rsync and symlink'
+description: "Deploy to server using rsync and symlink"
 
 inputs:
   SERVER_SSH_KEY:
     type: string
-    description: 'Server SSH key'
+    description: "Server SSH key"
     required: true
   SERVER_USER:
     type: string
-    description: 'Server used for deployment'
+    description: "Server used for deployment"
     required: true
   SERVER_HOST:
     type: string
-    description: 'Server host for deployment'
+    description: "Server host for deployment"
     required: true
   SERVER_ROOT:
     type: string
-    description: 'Server root directory for deployment'
+    description: "Server root directory for deployment"
     required: true
   SERVER_PORT:
     type: string
-    description: 'Server port for deployment'
+    description: "Server port for deployment"
     required: true
   RELEASES_TO_KEEP:
     type: string
-    description: 'Number of releases to keep. Minimal number is 1.'
+    description: "Number of releases to keep. Minimal number is 1."
     default: 10
   RELEASES_FOLDER:
     type: string
-    description: 'Releases folder name'
-    default: 'releases'
+    description: "Releases folder name"
+    default: "releases"
   SSM_DEPLOY:
     type: string
-    description: 'Use AWS SSM tunnel for deployment'
-    default: 'false'
+    description: "Use AWS SSM tunnel for deployment"
+    default: "false"
   AWS_REGION:
     type: string
-    description: 'AWS region for SSM tunnel'
+    description: "AWS region for SSM tunnel"
     default: ""
   AWS_ROLE:
     type: string
-    description: 'AWS role for SSM tunnel'
+    description: "AWS role for SSM tunnel"
+    default: ""
+  POST_SYMLINK_COMMANDS:
+    type: string
+    description: "Extra shell commands to run after the default symlinks (executed inside the same SSH session, working dir is SERVER_ROOT)"
     default: ""
 
 runs:
@@ -102,6 +106,7 @@ runs:
           ln -s ../../../shared/uploads current/wp-content/uploads &&
           ln -s ../../../shared/languages current/wp-content/languages &&
           ln -s ../../../shared/wflogs current/wp-content/wflogs
+          ${{ inputs.POST_SYMLINK_COMMANDS }}
         "
 
     - name: Cleanup old releases
