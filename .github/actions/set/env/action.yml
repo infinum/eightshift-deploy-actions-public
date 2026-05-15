@@ -3,7 +3,7 @@ description: "Create or edit an env file from a multi-line list of KEY=VALUE pai
 
 inputs:
   VARS:
-    type: string
+    type: boolean
     description: "Multi-line list of KEY=VALUE pairs to write into the env file."
     required: true
   OUTPUT_PATH:
@@ -11,7 +11,7 @@ inputs:
     description: "Path (including filename) where the env file is written."
     default: ".env"
   EDIT:
-    type: string
+    type: boolean
     description: "If 'true', update values of existing keys in OUTPUT_PATH instead of recreating the file. Fails if any key in VARS is not already present."
     default: false
 
