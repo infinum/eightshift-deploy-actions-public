@@ -1,0 +1,58 @@
+name: Set env file
+description: "Upsert KEY=VALUE pairs into an env file. Creates the file if missing, updates existing keys, appends new ones."
+
+inputs:
+  VARS:
+    type: string
+    description: "Multi-line list of KEY=VALUE pairs to upsert into the env file."
+    required: true
+  OUTPUT_PATH:
+    type: string
+    description: "Path (including filename) where the env file is written."
+    default: ".env"
+
+runs:
+  using: composite
+  steps:
+    - name: Write env file
+      shell: bash
+      env:
+        VARS: ${{ inputs.VARS }}
+        OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "${VARS//[[:space:]]/}" ]; then
+          echo "::error::VARS input is empty."
+          exit 1
+        fi
+
+        mkdir -p "$(dirname "${OUTPUT_PATH}")"
+        [ -f "${OUTPUT_PATH}" ] || : > "${OUTPUT_PATH}"
+
+        while IFS= read -r line || [ -n "${line}" ]; do
+          [ -z "${line//[[:space:]]/}" ] && continue
+          [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+
+          if [[ "${line}" != *"="* ]]; then
+            echo "::error::Invalid line (missing '='): ${line}"
+            exit 1
+          fi
+
+          key="${line%%=*}"
+          value="${line#*=}"
+          key="${key#"${key%%[![:space:]]*}"}"
+          key="${key%"${key##*[![:space:]]}"}"
+
+          if grep -qE "^[[:space:]]*${key}=" "${OUTPUT_PATH}"; then
+            awk -v key="${key}" -v val="${value}" '
+              !replaced && $0 ~ "^[[:space:]]*" key "=" { print key "=" val; replaced=1; next }
+              { print }
+            ' "${OUTPUT_PATH}" > "${OUTPUT_PATH}.tmp"
+            mv "${OUTPUT_PATH}.tmp" "${OUTPUT_PATH}"
+            echo "Updated ${key} in ${OUTPUT_PATH}"
+          else
+            printf '%s=%s\n' "${key}" "${value}" >> "${OUTPUT_PATH}"
+            echo "Added ${key} to ${OUTPUT_PATH}"
+          fi
+        done <<< "${VARS}"
