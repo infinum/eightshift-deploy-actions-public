@@ -1,16 +1,16 @@
-name: Install theme/plugin
-description: "Install theme/plugin"
+name: Run composer actions
+description: "Run composer actions - PHPStan, CodeSniffer, etc."
 
 inputs:
-  PROJECT_PATH:
-    type: string
-    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
-    required: true
   PHP_VERSION:
     type: string
     description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
     required: false
     default: "8.4"
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    required: true
   WORDPRESS_GH_ACTIONS:
     type: string
     description: "GitHub PAT token for the WordPress repository deployment"
@@ -19,6 +19,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
     - name: PHP setup
       uses: shivammathur/setup-php@v2
       with:
@@ -32,19 +35,7 @@ runs:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
-    - name: Install Bun
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
-
-    - name: Install assets packages with bun
-      working-directory: ${{ inputs.PROJECT_PATH }}
+    - name: Run Composer checks
       shell: bash
-      run: |
-        bun install --ignore-scripts --frozen-lockfile --production
-        bun run build
-
-    - name: Post install cleanup - theme or plugin
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@feature/update
-      with:
-        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      run: "composer run test"

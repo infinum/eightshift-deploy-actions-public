@@ -1,0 +1,29 @@
+name: Run composer install
+description: "Run composer install"
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    required: true
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: "GitHub PAT token for the WordPress repository deployment"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies (authed)
+      if: inputs.WORDPRESS_GH_ACTIONS != ''
+      uses: "ramsey/composer-install@4.0.0"
+      with:
+        working-directory: ${{ inputs.PROJECT_PATH }}
+      env:
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ inputs.WORDPRESS_GH_ACTIONS }}"}}'
+
+    - name: Install dependencies
+      if: inputs.WORDPRESS_GH_ACTIONS == ''
+      uses: "ramsey/composer-install@4.0.0"
+      with:
+        working-directory: ${{ inputs.PROJECT_PATH }}

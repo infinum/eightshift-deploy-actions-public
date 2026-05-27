@@ -64,40 +64,29 @@ jobs:
           token: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Install plugin
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@feature/update
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
+          WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Update version number
-        id: update-version
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-plugin@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-plugin@feature/update
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
-      - name: Upload sourcemaps to Bugsnag
-        if: ${{ needs.context.outputs.environment == 'production' && inputs.SKIP_SOURCEMAPS != true }}
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/bugsnag-sourcemaps@main
-        with:
-          API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
-          APP_VERSION: ${{ steps.update-version.outputs.version }}
-          ENVIRONMENT: ${{ needs.context.outputs.environment }}
-          PATHS: |
-            wp-content/themes/<theme_name>/public
-            wp-content/plugins/<plugin_name>/public
-
       - name: Post install cleanup - root
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@feature/update
 
       - name: Post install cleanup - plugin
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@feature/update
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
       - name: Setup correct folder/file permissions
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@feature/update
 
       - name: Build and push Docker image
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/docker/build-push@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/docker/build-push@feature/update
         with:
           CLOUD: "aws"
           TAGS: "${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}"
@@ -110,7 +99,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [context, build-and-push]
-    uses: infinum/eightshift-deploy-actions-public/.github/workflows/deploy-ecs-task-definition.yml@main
+    uses: infinum/eightshift-deploy-actions-public/.github/workflows/deploy-ecs-task-definition.yml@feature/update
     with:
       GIT_REF: ${{ github.ref }}
       IMAGE_URI: ${{ needs.context.outputs.aws_ecr_uri }}:${{ github.sha }}
@@ -129,6 +118,6 @@ jobs:
     needs: [context, build-and-push, deploy]
     steps:
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@feature/update
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

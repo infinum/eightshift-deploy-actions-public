@@ -2,10 +2,6 @@ name: Install theme/plugin from submodule
 description: "Install theme/plugin from submodule"
 
 inputs:
-  NODE_VERSION:
-    type: string
-    description: "Node.js version to use. Available options are 14, 16, latest etc. Default is latest."
-    default: "latest"
   ROOT_PATH:
     type: string
     description: "Path to the root of the repository. Usually $GITHUB_WORKSPACE"
@@ -39,6 +35,10 @@ inputs:
     description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
     required: false
     default: "8.4"
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: "GitHub PAT token for the WordPress repository deployment"
+    required: false
 
 runs:
   using: composite
@@ -59,11 +59,11 @@ runs:
         tools: composer:v2
 
     - name: Install dependencies
-      uses: "ramsey/composer-install@4.0.0"
+      uses: "infinum/eightshift-deploy-actions-public/.github/actions/set/composer-install@feature/update"
       if: inputs.USE_COMPOSER == 'true'
       with:
-        composer-options: "--no-dev"
-        working-directory: ${{ inputs.PROJECT_PATH }}
+        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Install Bun
       uses: oven-sh/setup-bun@v2

@@ -1,16 +1,20 @@
 name: PHP check coding standards
-description: 'PHP check coding standards'
+description: "PHP check coding standards"
 
 inputs:
   PHP_VERSION:
     type: string
-    description: 'PHP version to use. Available options are 8.2, 8.3, 8.4, etc.'
+    description: "PHP version to use. Available options are 8.2, 8.3, 8.4, etc."
     required: false
     default: "8.4"
   PROJECT_PATH:
     type: string
-    description: 'Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>'
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
     required: true
+  WORDPRESS_GH_ACTIONS:
+    type: string
+    description: "GitHub PAT token for the WordPress repository deployment"
+    required: false
 
 runs:
   using: composite
@@ -23,11 +27,13 @@ runs:
       with:
         php-version: ${{ inputs.PHP_VERSION }}
         coverage: none
+        tools: composer:v2
 
     - name: Install dependencies
-      uses: "ramsey/composer-install@4.0.0"
+      uses: "infinum/eightshift-deploy-actions-public/.github/actions/set/composer-install@feature/update"
       with:
-        working-directory: ${{ inputs.PROJECT_PATH }}
+        PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
+        WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
     - name: Run PHP check coding standards
       shell: bash

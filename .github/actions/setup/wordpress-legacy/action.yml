@@ -1,5 +1,5 @@
 name: Install WordPress with core and paid plugins
-description: 'Install WordPress with core and paid plugins'
+description: "Install WordPress with core and paid plugins"
 
 inputs:
   PHP_VERSION:
@@ -142,7 +142,7 @@ runs:
         wp config set "constants" 'file_exists($constantsPath) ? require_once($constantsPath) : ""' --raw --type="variable"
 
     - name: Install all plugins
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@feature/update
       with:
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
         SETUP_FILE: ${{ inputs.SETUP_FILE }}

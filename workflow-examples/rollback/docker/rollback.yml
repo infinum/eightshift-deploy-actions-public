@@ -41,7 +41,7 @@ jobs:
   rollback:
     name: Rollback
     needs: [context]
-    uses: infinum/eightshift-deploy-actions-public/.github/workflows/rollback-ecs-service.yml@main
+    uses: infinum/eightshift-deploy-actions-public/.github/workflows/rollback-ecs-service.yml@feature/update
     with:
       AWS_REGION: ${{ needs.context.outputs.aws_region }}
       AWS_ROLE_TO_ASSUME: ${{ needs.context.outputs.aws_ecs_deploy_role }}
@@ -55,6 +55,6 @@ jobs:
     needs: [context, rollback]
     steps:
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@feature/update
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
