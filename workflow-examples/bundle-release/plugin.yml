@@ -22,28 +22,28 @@ jobs:
           path: "wp-content/plugins/<plugin_name>"
 
       - name: Setup WordPress
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress-plugins@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress-plugins@main
         with:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Install plugin
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: "wp-content/plugins/<plugin_name>"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Set cache
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
         with:
           PROJECT_PATH: "wp-content/plugins/<plugin_name>"
 
       - name: Post install cleanup - plugin
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
         with:
           PROJECT_PATH: "wp-content/plugins/<plugin_name>"
 
       - name: Setup correct folder/file permissions
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
         with:
           PROJECT_PATH: "wp-content/plugins/<plugin_name>"
 

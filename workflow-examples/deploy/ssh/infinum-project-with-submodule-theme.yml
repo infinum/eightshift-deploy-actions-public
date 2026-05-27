@@ -42,12 +42,12 @@ jobs:
     needs: [context]
     steps:
       - name: Setup WordPress
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/env@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/env@main
         with:
           VARS: |
             WORDPRESS_DB_NAME=${{ secrets.DB_NAME }}
@@ -66,12 +66,12 @@ jobs:
             WP_ENVIRONMENT_TYPE=${{ needs.context.outputs.environment }}
 
       - name: Install all plugins
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
         with:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Install theme from submodule
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-from-submodule@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-from-submodule@main
         with:
           ROOT_PATH: $GITHUB_WORKSPACE
           PROJECT_PATH: wp-content/themes/<theme_name>
@@ -80,25 +80,25 @@ jobs:
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Set cache
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
 
       - name: Update version number
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
 
       - name: Post install cleanup - root
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
 
       - name: Post install cleanup - project
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
 
       - name: Setup correct folder/file permissions
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
 
       - name: Copy config files
         run: |
@@ -112,7 +112,7 @@ jobs:
           rm -rf ./docs
 
       - name: Deploy to server
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy@main
         with:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -130,6 +130,6 @@ jobs:
     needs: [context, build-and-push]
     steps:
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

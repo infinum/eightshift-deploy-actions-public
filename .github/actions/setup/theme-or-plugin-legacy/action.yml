@@ -27,7 +27,7 @@ runs:
         tools: composer:v2
 
     - name: Install dependencies
-      uses: "infinum/eightshift-deploy-actions-public/.github/actions/set/composer-install@feature/update"
+      uses: "infinum/eightshift-deploy-actions-public/.github/actions/set/composer-install@main"
       with:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
@@ -45,6 +45,6 @@ runs:
         bun run build
 
     - name: Post install cleanup - theme or plugin
-      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@feature/update
+      uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/project@main
       with:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}

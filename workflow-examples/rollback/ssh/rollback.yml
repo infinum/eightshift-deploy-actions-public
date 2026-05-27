@@ -41,7 +41,7 @@ jobs:
     needs: [context]
     steps:
       - name: Rollback release
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/rollback@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/rollback@main
         with:
           ROLLBACK_NUMBER: ${{ github.event.inputs.ROLLBACK_NUMBER }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -60,6 +60,6 @@ jobs:
     needs: [context, rollback]
     steps:
       - name: Notify
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/slack-notification@main
         with:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

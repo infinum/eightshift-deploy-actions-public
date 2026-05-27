@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Lint assets
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/node@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/node@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
 
@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
     steps:
       - name: PHP Static code analysis
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/composer@feature/update
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/composer@main
         with:
           PROJECT_PATH: wp-content/plugins/<plugin_name>
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
