@@ -169,7 +169,6 @@ runs:
 
     - name: Login to Amazon ECR
       if: ${{ inputs.CLOUD == 'aws' }}
-      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
       with:
         registries: ${{ inputs.AWS_ECR_ACCOUNT_ID }}

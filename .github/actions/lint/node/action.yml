@@ -1,0 +1,32 @@
+name: Run Node actions
+description: "Run Node actions - JS, CSS, tests, etc."
+
+inputs:
+  PROJECT_PATH:
+    type: string
+    description: "Path to the project folder from the root of the repository. Usually wp-content/themes/<theme_name> or wp-content/plugins/<plugin_name>"
+    required: true
+  USE_CHECKOUT:
+    type: string
+    description: "If true, checkout is used to install dependencies"
+    default: true
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      if: inputs.USE_CHECKOUT == 'true'
+      uses: actions/checkout@v6
+
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install assets packages with bun and run all Node checks
+      working-directory: ${{ inputs.PROJECT_PATH }}
+      shell: bash
+      run: |
+        bun install --ignore-scripts --frozen-lockfile
+        bun run build
+        bun run test

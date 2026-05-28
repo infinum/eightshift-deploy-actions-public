@@ -1,5 +1,5 @@
-name: PHP Static code analysis
-description: "PHP Static code analysis"
+name: Run composer actions
+description: "Run composer actions - PHPStan, CodeSniffer, etc."
 
 inputs:
   PHP_VERSION:
@@ -35,7 +35,7 @@ runs:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
 
-    - name: Run PHP Static code analysis
+    - name: Run Composer checks
       shell: bash
       working-directory: ${{ inputs.PROJECT_PATH }}
-      run: "php ./vendor/bin/phpstan analyze"
+      run: "composer run test"

@@ -33,7 +33,7 @@ jobs:
     steps:
       - id: get
         run: |
-          echo "environment=${{ inputs.ENVIRONMENT }}" >> "$GITHUB_OUTPUT"
+          echo "environment=${{ inputs.ENVIRONMENT != '' && inputs.ENVIRONMENT || 'staging' }}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     name: Build and push
@@ -44,25 +44,26 @@ jobs:
       - name: Setup WordPress
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/wordpress@main
         with:
-          PHP_VERSION: "8.4"
           WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Setup custom secrets as environment variables
-        shell: bash
-        run: |
-          wp config set AUTH_KEY '${{ secrets.AUTH_KEY }}'
-          wp config set SECURE_AUTH_KEY '${{ secrets.SECURE_AUTH_KEY }}'
-          wp config set LOGGED_IN_KEY '${{ secrets.LOGGED_IN_KEY }}'
-          wp config set NONCE_KEY '${{ secrets.NONCE_KEY }}'
-          wp config set AUTH_SALT '${{ secrets.AUTH_SALT }}'
-          wp config set SECURE_AUTH_SALT '${{ secrets.SECURE_AUTH_SALT }}'
-          wp config set LOGGED_IN_SALT '${{ secrets.LOGGED_IN_SALT }}'
-          wp config set NONCE_SALT '${{ secrets.NONCE_SALT }}'
-          wp config set WP_CACHE_KEY_SALT '${{ secrets.WP_CACHE_KEY_SALT }}'
-          wp config set WP_ENVIRONMENT_TYPE '${{ needs.context.outputs.environment }}'
-
-      - name: Set special constants
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/special-constants@main
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/env@main
+        with:
+          VARS: |
+            WORDPRESS_DB_NAME=${{ secrets.DB_NAME }}
+            WORDPRESS_DB_USER=${{ secrets.DB_USER }}
+            WORDPRESS_DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            WORDPRESS_DB_HOST=${{ secrets.DB_HOST }}
+            WORDPRESS_AUTH_KEY=${{ secrets.AUTH_KEY }}
+            WORDPRESS_SECURE_AUTH_KEY=${{ secrets.SECURE_AUTH_KEY }}
+            WORDPRESS_LOGGED_IN_KEY=${{ secrets.LOGGED_IN_KEY }}
+            WORDPRESS_NONCE_KEY=${{ secrets.NONCE_KEY }}
+            WORDPRESS_AUTH_SALT=${{ secrets.AUTH_SALT }}
+            WORDPRESS_SECURE_AUTH_SALT=${{ secrets.SECURE_AUTH_SALT }}
+            WORDPRESS_LOGGED_IN_SALT=${{ secrets.LOGGED_IN_SALT }}
+            WORDPRESS_NONCE_SALT=${{ secrets.NONCE_SALT }}
+            WORDPRESS_CACHE_KEY_SALT=${{ secrets.WP_CACHE_KEY_SALT }}
+            WP_ENVIRONMENT_TYPE=${{ needs.context.outputs.environment }}
 
       - name: Install all plugins
         uses: infinum/eightshift-deploy-actions-public/.github/actions/plugins/install@main
@@ -73,6 +74,7 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
+          WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Set cache
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/cache@main
@@ -84,14 +86,6 @@ jobs:
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
 
-      - name: Setup real database constants
-        shell: bash
-        run: |
-          wp config set DB_NAME '${{ secrets.DB_NAME }}'
-          wp config set DB_USER '${{ secrets.DB_USER }}'
-          wp config set DB_PASSWORD '${{ secrets.DB_PASSWORD }}'
-          wp config set DB_HOST '${{ secrets.DB_HOST }}'
-
       - name: Post install cleanup - root
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main
 
@@ -102,6 +96,17 @@ jobs:
 
       - name: Setup correct folder/file permissions
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/permissions@main
+
+      - name: Copy config files
+        run: |
+          cp ./config/wp-config-helpers.php ./wp-config-helpers.php
+          cp ./config/wp-constants.php ./wp-constants.php
+          cp ./config/wp-constants-server.php ./wp-constants-server.php
+          cp ./config/wp-constants-project.php ./wp-constants-project.php
+          cp ./config/wp-config.php ./wp-config.php
+          cp ./config/wordfence-waf.php ./wordfence-waf.php
+          rm -rf ./config
+          rm -rf ./docs
 
       - name: Deploy to server
         uses: infinum/eightshift-deploy-actions-public/.github/actions/ssh/server-deploy@main

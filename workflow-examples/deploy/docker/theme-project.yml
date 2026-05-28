@@ -72,23 +72,12 @@ jobs:
         uses: infinum/eightshift-deploy-actions-public/.github/actions/setup/theme-or-plugin@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
+          WORDPRESS_GH_ACTIONS: ${{ secrets.WORDPRESS_GH_ACTIONS }}
 
       - name: Update version number
-        id: update-version
         uses: infinum/eightshift-deploy-actions-public/.github/actions/set/version-theme@main
         with:
           PROJECT_PATH: wp-content/themes/<theme_name>
-
-      - name: Upload sourcemaps to Bugsnag
-        if: ${{ needs.context.outputs.environment == 'production' && inputs.SKIP_SOURCEMAPS != true }}
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/set/bugsnag-sourcemaps@main
-        with:
-          API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
-          APP_VERSION: ${{ steps.update-version.outputs.version }}
-          ENVIRONMENT: ${{ needs.context.outputs.environment }}
-          PATHS: |
-            wp-content/themes/<theme_name>/public
-            wp-content/plugins/<plugin_name>/public
 
       - name: Post install cleanup - root
         uses: infinum/eightshift-deploy-actions-public/.github/actions/cleanup/root@main

@@ -1,32 +1,32 @@
 name: Get and install all plugins
-description: 'Get and install all plugins'
+description: "Get and install all plugins"
 
 inputs:
   WORDPRESS_GH_ACTIONS:
-    description: 'GitHub PAT token for the WordPress repository deployment'
+    description: "GitHub PAT token for the WordPress repository deployment"
     required: true
   SETUP_FILE:
     type: string
-    description: 'Path to the setup file'
-    default: 'setup.json'
+    description: "Path to the setup file"
+    default: "setup.json"
   OUTPUT_PATH:
     type: string
-    description: 'Path to the output folder'
-    default: './wp-content/plugins'
+    description: "Path to the output folder"
+    default: "./wp-content/plugins"
   PLUGINS_PAID_GITHUB_USER:
     type: string
-    description: 'GitHub user for private plugins'
-    default: 'infinum'
+    description: "GitHub user for private plugins"
+    default: "infinum"
   PLUGINS_PAID_GITHUB_REPO:
     type: string
-    description: 'GitHub repository for private plugins'
-    default: 'eightshift-private-plugins'
+    description: "GitHub repository for private plugins"
+    default: "eightshift-private-plugins"
   PLUGINS_EIGHTSHIFT_GITHUB_ACTIONS:
-    description: 'GitHub PAT token for the Eightshift repository'
+    description: "GitHub PAT token for the Eightshift repository"
   PLUGINS_EIGHTSHIFT_GITHUB_USER:
     type: string
-    description: 'GitHub repository for Eightshift plugins'
-    default: 'infinum'
+    description: "GitHub repository for Eightshift plugins"
+    default: "infinum"
 
 runs:
   using: composite
@@ -52,4 +52,3 @@ runs:
         SETUP_FILE: ${{ inputs.SETUP_FILE }}
         OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
         GITHUB_USER: ${{ inputs.PLUGINS_EIGHTSHIFT_GITHUB_USER }}
-
