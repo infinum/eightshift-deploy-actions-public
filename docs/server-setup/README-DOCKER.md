@@ -17,8 +17,12 @@ Your project must contain the following files from the `docker` folder:
 
 In order for the Docker setup to work properly you project `MUST` have Eightshift Utils plugin installed and active in the database, together with the _'Knock-knock' route_ feature activated to make sure website health checks work properly.
 
-If you are setting up the Docker setup for the first time, you need to ask your `DevOps` to connect to the server using SSM and activate the `Eightshift Utils` plugin using the `wp-cli.phar` command.
+If you are setting up the Docker setup for the first time, you need to ask your `DevOps` to connect to the server using SSM and run some necessary commands using the `wp-cli.phar` command.
 
 ```bash
+wp core install --url="https://example.com" --title="Example" --admin_user="admin" --admin_password="password" --admin_email="admin@example.com"
+
 wp plugin activate eightshift-utils
+
+wp rewrite structure /%postname%/
 ```
