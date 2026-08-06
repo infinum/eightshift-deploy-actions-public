@@ -201,5 +201,6 @@ The Docker deploy workflow examples no longer ship the Bugsnag sourcemap upload 
 
 - Initial production release.
 
+[2.0.1]: https://github.com/infinum/eightshift-deploy-actions-public/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/infinum/eightshift-deploy-actions-public/compare/1.0.0...2.0.0
 [1.0.0]: https://github.com/infinum/eightshift-deploy-actions-public/releases/tag/1.0.0
