@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [2.0.1]
+
+### Fixed
+
+- Fixed `plugins/install`'s "Install plugins core" step not forwarding `SETUP_FILE` and `OUTPUT_PATH` to `install-core` (the `paid` and `eightshift` sibling steps already forwarded both), which made consumers whose `setup.json`/plugins directory isn't at the repo root silently fail or install into the wrong location.
+
 ## [2.0.0]
 
 ### Added
