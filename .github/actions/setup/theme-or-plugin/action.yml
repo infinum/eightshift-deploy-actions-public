@@ -27,6 +27,16 @@ inputs:
     type: string
     description: "GitHub PAT token for the WordPress repository deployment"
     required: false
+  COMPOSER_OPTIONS:
+    type: string
+    description: "Extra flags passed to `composer install` (e.g. '--no-dev --optimize-autoloader')"
+    required: false
+    default: ""
+  BUN_INSTALL_ARGS:
+    type: string
+    description: "Flags passed to `bun install` before the build step"
+    required: false
+    default: "--ignore-scripts --frozen-lockfile --production"
 
 runs:
   using: composite
@@ -45,6 +55,7 @@ runs:
       with:
         PROJECT_PATH: ${{ inputs.PROJECT_PATH }}
         WORDPRESS_GH_ACTIONS: ${{ inputs.WORDPRESS_GH_ACTIONS }}
+        COMPOSER_OPTIONS: ${{ inputs.COMPOSER_OPTIONS }}
 
     - name: Install Bun
       uses: oven-sh/setup-bun@v2
@@ -57,7 +68,7 @@ runs:
       if: inputs.USE_BUN == 'true'
       shell: bash
       run: |
-        bun install --ignore-scripts --frozen-lockfile --production
+        bun install ${{ inputs.BUN_INSTALL_ARGS }}
         bun run build
 
     - name: Build assets with sourcemaps (bun)
