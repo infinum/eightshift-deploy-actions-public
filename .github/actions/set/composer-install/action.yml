@@ -10,7 +10,7 @@ inputs:
     type: string
     description: "GitHub PAT token for the WordPress repository deployment"
     required: false
-  COMPOSER_OPTIONS:
+  COMPOSER_ARGS:
     type: string
     description: "Extra flags passed to `composer install` (e.g. '--no-dev --optimize-autoloader')"
     required: false
@@ -24,7 +24,7 @@ runs:
       uses: "ramsey/composer-install@4.0.0"
       with:
         working-directory: ${{ inputs.PROJECT_PATH }}
-        composer-options: ${{ inputs.COMPOSER_OPTIONS }}
+        composer-options: ${{ inputs.COMPOSER_ARGS }}
       env:
         COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ inputs.WORDPRESS_GH_ACTIONS }}"}}'
 
@@ -33,4 +33,4 @@ runs:
       uses: "ramsey/composer-install@4.0.0"
       with:
         working-directory: ${{ inputs.PROJECT_PATH }}
-        composer-options: ${{ inputs.COMPOSER_OPTIONS }}
+        composer-options: ${{ inputs.COMPOSER_ARGS }}
