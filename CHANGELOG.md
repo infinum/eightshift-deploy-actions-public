@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [2.1.0]
+
+### Added
+
+- Added `COMPOSER_ARGS` input to `set/composer-install` and `setup/theme-or-plugin`, forwarded to `ramsey/composer-install`'s `composer-options`, so consumers can pass flags such as `--no-dev --optimize-autoloader` without dropping out of the `WORDPRESS_GH_ACTIONS`-authenticated install path. Defaults to `""` — existing consumers are unaffected.
+- Added `BUN_ARGS` input to `setup/theme-or-plugin`, defaulting to the previously hardcoded `--ignore-scripts --frozen-lockfile --production`, so consumers whose build step needs devDependencies (e.g. their bundler is a devDependency) can override it.
+- Added `BUN_VERSION` input to `setup/theme-or-plugin`, defaulting to the previously hardcoded `latest`, so consumers that pin a specific Bun version elsewhere in their pipeline can keep that pin here too.
+
 ## [2.0.1]
 
 ### Fixed
