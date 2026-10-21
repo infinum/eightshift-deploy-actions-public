@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [2.1.1]
+
+### Fixed
+
+- Moved the `docker/Dockerfile` template base from the frozen `wordpress:6.9.4-php8.4-fpm` tag (no longer rebuilt upstream, stuck on PHP 8.4.21 and missing several PHP security releases, including CVE-2026-109618/CVE-2026-109619) to the maintained `wordpress:7.1-php8.4-fpm` tag, so projects built from the template keep receiving upstream PHP fixes. Note this also moves template users from WordPress core 6.9 to 7.1.
+
 ## [2.1.0]
 
 ### Added
@@ -209,6 +215,7 @@ The Docker deploy workflow examples no longer ship the Bugsnag sourcemap upload 
 
 - Initial production release.
 
+[2.1.1]: https://github.com/infinum/eightshift-deploy-actions-public/compare/2.1.0...2.1.1
 [2.0.1]: https://github.com/infinum/eightshift-deploy-actions-public/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/infinum/eightshift-deploy-actions-public/compare/1.0.0...2.0.0
 [1.0.0]: https://github.com/infinum/eightshift-deploy-actions-public/releases/tag/1.0.0

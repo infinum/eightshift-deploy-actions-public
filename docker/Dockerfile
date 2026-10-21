@@ -1,4 +1,4 @@
-FROM wordpress:6.9.4-php8.4-fpm
+FROM wordpress:7.1-php8.4-fpm
 
 WORKDIR /usr/src/wordpress
 
