@@ -34,7 +34,23 @@ runs:
     - name: Start MySQL
       shell: bash
       run: |
-        sudo /etc/init.d/mysql start
+        if [ -d /run/systemd/system ]; then
+          sudo systemctl start mysql.service
+        elif [ -x /etc/init.d/mysql ]; then
+          sudo /etc/init.d/mysql start
+        else
+          sudo service mysql start
+        fi
+
+        for i in $(seq 1 30); do
+          if MYSQL_PWD=root mysqladmin ping -h 127.0.0.1 -u root --silent; then
+            exit 0
+          fi
+          sleep 1
+        done
+
+        echo "::error::MySQL did not become ready within 30 seconds"
+        exit 1
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
