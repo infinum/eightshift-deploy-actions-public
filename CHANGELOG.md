@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [2.1.2]
+
+### Fixed
+
+- Fixed the "Start MySQL" step in `setup/wordpress` and `setup/wordpress-plugins` failing on `ubuntu-26.04` runners (`sudo: '/etc/init.d/mysql': command not found`), as the image no longer ships the SysV init script. The step now starts MySQL with `systemctl` on systemd hosts (all GitHub-hosted Ubuntu runners), falls back to `/etc/init.d/mysql` or `service` elsewhere, and waits up to 30 seconds for the server to accept connections before continuing.
+
 ## [2.1.1]
 
 ### Fixed
